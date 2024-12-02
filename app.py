@@ -45,8 +45,7 @@ def read_root():
 @app.post("/dbcreate", tags=["database"], name="create database", summary="Create a new Database", status_code=201)
 async def dbcreate():
     '''
-    This endpoint will create a database if not present and creates below tables \n
-    1. users \n
+    This endpoint will create a database if not present and creates tables [users]
     '''
     logger.debug("Endpoint Reached - /dbcreate")
     result = await create_database()
@@ -59,6 +58,9 @@ async def dbcreate():
 
 @app.put("/refresh/users", tags=["database"], status_code=204)
 async def refresh_users():
+    '''
+    This endpoint will sync all the AD users to the local database
+    '''
     await add_ad_users()
     # return {"message": "Users Refreshed"}
 
