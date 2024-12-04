@@ -1,8 +1,10 @@
 import logging
 from fastapi import HTTPException
-from conf.log_config import logger
 import configparser
+from conf.log_config import CONFIGFILE
 
+# Logger
+logger = logging.getLogger("homeops.db")
 
 async def change_logger(logger_name, level):
     """
@@ -18,44 +20,50 @@ async def change_logger(logger_name, level):
                             logger_name}' not found")
 
     # Get the logger
-    logger = logging.getLogger(logger_name)
+    modify_logger = logging.getLogger(logger_name)
 
     # Set the new log level in runtime
-    logger.setLevel(level)
-    logger.warning(f"Log level of logger '{logger_name}' set to {level}")
+    modify_logger.setLevel(level)
+    modify_logger.warning(f"Log level of logger {logger_name} set to {level}")
 
     # Update the log level in the configuration file
     await update_log_level_in_config(logger_name, level)
 
-    return {"message": f"Log level of logger '{logger_name}' set to {level}"}
+    return f"Log level of logger '{logger_name}' set to {level}"
 
 
 async def update_log_level_in_config(logger_name: str, level: str):
     """
     Update the log level of the logger in the config file.
     """
-    config_file = 'autolab.ini'  # Path to your config file (update this if needed)
 
     # Load the existing config file
     config = configparser.ConfigParser()
-    config.read(config_file)
-
+    config.read(CONFIGFILE)
+    logger.debug(f"Config Sections: {config.sections()}")
     # Convert dots to underscores for the section name
     logger_section = f'logger_{logger_name.replace(".", "_")}'
 
+    logger.debug(f"Logger Section: {logger_section}")
+
+
+
     # Check if the logger section exists
     if logger_section not in config.sections():
-        raise HTTPException(status_code=404, detail=f"Logger '{
-                            logger_name}' not found in config file")
+        # This can be disabled since the response should be success even it was not updated on config file, as Not all config is expected to be on the logger file
+        raise HTTPException(status_code=200, detail={"status": "warning",
+                                                     "message":f"'{logger_name}' - Logger level Updated. but the logger was not found in the config file",
+                                                     "action":"Verify if the logger is available in settings.ini"})
 
     # Update the level in the config file
     config.set(logger_section, 'level', level)
 
     # Save the updated config file
-    with open(config_file, 'w') as configfile:
+    with open(CONFIGFILE, 'w') as configfile:
+        # noinspection PyTypeChecker
         config.write(configfile)
 
     # Log the update
-    root_logger = logging.getLogger('autolab')
-    root_logger.info(f"Updated log level of '{
+    main_logger = logging.getLogger('homeops')
+    main_logger.debug(f"Updated log level of '{
                      logger_name}' to {level} in config file")

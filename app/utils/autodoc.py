@@ -1,6 +1,12 @@
 import urllib.request
 import json
-import os
+
+"""
+This file will create a readme file with all the endpoints and its usage with example cURL command.
+Usage :
+1. Run the project (This will create openapi.json serving in localhost:8000/openapi.json)
+2. Run this script to create the documentation and validate is everything looks good
+"""
 
 # URL of the OpenAPI spec
 url = "http://127.0.0.1:8000/openapi.json"
@@ -29,22 +35,26 @@ A tool for automating and managing homelab operations.
 # Function to generate sample request body
 
 
-def generate_sample_body(schema):
-    if 'properties' in schema:
+def generate_sample_body(sample_schema) -> object:
+    """
+
+    @rtype: object
+    """
+    if 'properties' in sample_schema:
         body = {}
-        for prop, prop_details in schema['properties'].items():
-            if 'type' in prop_details:
+        for props, props_details in sample_schema['properties'].items():
+            if 'type' in props_details:
                 # Generate a sample value based on type
-                if prop_details['type'] == 'string':
-                    body[prop] = "sample_value"
-                elif prop_details['type'] == 'integer':
-                    body[prop] = 123
-                elif prop_details['type'] == 'boolean':
-                    body[prop] = True
-                elif prop_details['type'] == 'array':
-                    body[prop] = [1, 2, 3]
+                if props_details['type'] == 'string':
+                    body[props] = "sample_value"
+                elif props_details['type'] == 'integer':
+                    body[props] = 123
+                elif props_details['type'] == 'boolean':
+                    body[props] = True
+                elif props_details['type'] == 'array':
+                    body[props] = [1, 2, 3]
                 else:
-                    body[prop] = None
+                    body[props] = None
         return json.dumps(body, indent=2)  # Return JSON formatted string
     return "{}"  # Empty body if no properties found
 
@@ -112,6 +122,7 @@ for path, methods in openapi_data['paths'].items():
         # Add body to the cURL command if there's a request body
         if endpoint_info["requestBody"]:
             # Use the generated sample body
+            # noinspection PyUnboundLocalVariable
             curl_command += f" -H 'Content-Type: application/json' -d '{
                 json.dumps(sample_body).replace('\\n', '').replace('\\', '')}'"
 
@@ -194,7 +205,7 @@ else:
 readme_content = constant_content + endpoint_content + schema_content
 
 # Path to your README file
-readme_file_path = "README.md"
+readme_file_path = "../../README.md"
 
 # Clear the README file content before writing fresh content
 with open(readme_file_path, "w") as file:
