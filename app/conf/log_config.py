@@ -1,6 +1,8 @@
 import logging.config
 import os
 
+import yaml
+
 # Get the absolute path of the root folder
 current_folder = os.path.dirname(os.path.abspath(__file__))
 app_folder = os.path.join(current_folder,"..")
@@ -24,15 +26,19 @@ def setup_logger():
     check_sub_dir_exists("logs")
 
     # Correct path to the logging config file (adjusted for your folder structure)
-    config_file = os.path.join(current_folder, 'settings.ini')
+    config_file = os.path.join(current_folder, 'logger.yaml')
 
     # Ensure the logging config file exists
     if not os.path.exists(config_file):
         print(f"ERROR: Configuration file '{config_file}' not found.")
         return None
 
-    # Load logging configuration from the settings.ini file
-    logging.config.fileConfig(config_file, disable_existing_loggers=False)
+    # Load logging configuration from the YAML file
+    with open(config_file, 'r') as f:
+        config = yaml.safe_load(f)
+
+    # Apply the logging configuration using dictConfig
+    logging.config.dictConfig(config)
 
     # Create and configure the logger
     root_logger = logging.getLogger('homeops')
@@ -46,3 +52,4 @@ def setup_logger():
 # Set up the logger and make it available globally
 logger = setup_logger()
 CONFIGFILE = os.path.join(os.path.dirname(__file__), 'settings.ini')
+LOGGERFILE = os.path.join(os.path.dirname(__file__), 'logger.yaml')

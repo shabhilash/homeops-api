@@ -35,14 +35,14 @@ Success Response
   - **Summary**: Refresh Users
   - **Description**: This endpoint will sync all the AD users to the local database
   - **Responses**:
-    - **Status Code**: 204
+    - **Status Code**: 200
       - **Description**: Successful Response
   - **cURL Command**:
     ```bash
     curl -X PUT 'http://127.0.0.1:8000/reload/ad-users'
     ```
 
-### POST /log-level
+### PUT /log-level
   - **Summary**: Modify Loggers on the go
   - **Description**: Endpoint to change the log level of a logger dynamically and update the config file.
 @type logger_level: object
@@ -62,7 +62,7 @@ Success Response
       - **Schema Reference**: [HTTPValidationError](#httpvalidationerror)
   - **cURL Command**:
     ```bash
-    curl -X POST 'http://127.0.0.1:8000/log-level' -H 'Content-Type: application/json' -d '"{  "logger_name": "sample_value",  "level": "sample_value"}"'
+    curl -X PUT 'http://127.0.0.1:8000/log-level' -H 'Content-Type: application/json' -d '"{  "logger_name": "sample_value",  "level": "sample_value"}"'
     ```
 
 ### GET /log-list

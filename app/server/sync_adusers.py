@@ -47,23 +47,24 @@ async def fetch_ad_users():
     # Perform the search
     status, result, response, _ = connection.search(
         search_base, search_filter, attributes=attributes)
-    logger.debug(f"AD Response: {response}")
+    logger.debug(f"AD Response: {len(response)}")
     # Extract relevant information from the response
     users = []
     for entry in response:
-        if 'attributes' in entry:
-            s_am_account_name = entry['attributes'].get('s_am_account_name')
+        if 'raw_attributes' in entry:
+            s_am_account_name = entry['raw_attributes'].get('sAMAccountName')
+            if isinstance(s_am_account_name, list):
+                s_am_account_name = s_am_account_name[0].decode("utf-8")
             if s_am_account_name and not s_am_account_name.endswith('$'):
-                email = entry['attributes'].get(
+                email = entry['raw_attributes'].get(
                     'mail') or f"{s_am_account_name}@{domain}"
                 user_info = {
                     'username': s_am_account_name,
-                    'first_name': entry['attributes'].get('givenName'),
-                    'last_name': entry['attributes'].get('sn'),
+                    'first_name': entry['raw_attributes'].get('givenName'),
+                    'last_name': entry['raw_attributes'].get('sn'),
                     'email': email
                 }
                 users.append(user_info)
-
     return users
 
 
@@ -71,6 +72,9 @@ async def sync_ad_users():
     """
     Async function to add AD users to the database
     """
+    modified_user_count = 0
+    new_user_count = 0
+    total_users_fetched = 0
     try:
         logger.debug("Adding AD users to users table")
         app_config.DB_CONN_OPEN = await db_connect()
@@ -80,17 +84,24 @@ async def sync_ad_users():
             logger.debug("Fetching users from AD")
             users = await fetch_ad_users()  # Fetch AD users asynchronously
             logger.debug(f"Users fetched : {users}")
+            total_users_fetched = len(users)
             for user in users:
                 logger.debug(f"Adding user {user['username']}")
                 logger.debug(user)
 
                 # Ensure first_name and last_name are strings
-                first_name = user['first_name'] if isinstance(
-                    user['first_name'], str) else ""
-                last_name = user['last_name'] if isinstance(
-                    user['last_name'], str) else ""
+                first_name = ""
+                if isinstance(user['first_name'], list) and user['first_name']:
+                    first_name = user['first_name'][0].decode('utf-8') if isinstance(user['first_name'][0], bytes) else \
+                    user['first_name'][0]
+
+                last_name = ""
+                if isinstance(user['last_name'], list) and user['last_name']:
+                    last_name = user['last_name'][0].decode('utf-8') if isinstance(user['last_name'][0], bytes) else \
+                    user['last_name'][0]
+
                 email = user['email'] if isinstance(user['email'], str) else f"{
-                    user['username']}"
+                user['username']}"
 
                 # Fetch the current user data from the DB
                 current_user = get_user_from_db(user['username'])
@@ -110,6 +121,7 @@ async def sync_ad_users():
                             app_config.DB_CONN.commit()
                             logger.debug(
                                 f"User {user['username']} updated in the database.")
+                            modified_user_count+=1
                         except sqlite3.Error as err:
                             logger.error(f"Error while inserting user {
                                          user['username']} - {err}")
@@ -127,34 +139,39 @@ async def sync_ad_users():
                         app_config.DB_CONN.commit()
                         logger.debug(
                             f"User {user['username']} added to the database.")
+                        new_user_count+=1
                     except sqlite3.Error as err:
                         logger.error(f"Error while inserting new user {
                                      user['username']} - {err}")
                         continue  # Skip to the next user on error
-            logger.info("User data imported")
+            logger.info(f"User data imported. Total Users: {total_users_fetched}, New Users: {new_user_count}, Modified Users: {modified_user_count}")
             cursor.close()
         else:
             logger.error("Connection not open, cannot refresh users.")
 
     except sqlite3.DataError as err:
-        logger.error(f"Error while processing data: {err}")
+        logger.exception(f"Error while processing data: {err}")
+        raise HTTPException(
+            status_code=500, detail=f"Operational error while refreshing users - {err}"
+        )
     except sqlite3.OperationalError as err:
-        logger.error(f"Operational error while refreshing users - {err}")
+        logger.exception(f"Operational error while refreshing users - {err}")
         raise HTTPException(
             status_code=500, detail=f"Operational error while refreshing users - {err}"
         )
     except sqlite3.DatabaseError as err:
-        logger.error(f"Database Error - {err}")
+        logger.exception(f"Database Error - {err}")
         raise HTTPException(
             status_code=500, detail=f"Database error - {err}"
         )
     except sqlite3.Error as err:
-        logger.error(f"Error while inserting data - {err}")
+        logger.exception(f"Error while inserting data - {err}")
         raise HTTPException(
             status_code=500, detail=f"Error while inserting users - {err}"
         )
     except Exception as err:
-        logger.error(f"Error while refreshing users: {err}")
+        logger.exception(f"Error while refreshing users: {err}")
         raise HTTPException(
             status_code=500, detail=f"Error while refreshing users - {err}"
         )
+    return total_users_fetched,new_user_count,modified_user_count

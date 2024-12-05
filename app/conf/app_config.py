@@ -26,12 +26,12 @@ DB_CONN_OPEN = False  # Global flag to track connection state
 
 ##########
 # TEST ENV
-DB_PATH = ":memory:"
-DB_CONN = sqlite3.connect(DB_PATH,check_same_thread=False)
+# DB_PATH = ":memory:"
+# DB_CONN = sqlite3.connect(DB_PATH,check_same_thread=False)
 ##########
 
 ##########
 # PROD ENV
-# DB_PATH = os.path.join(db_folder, DB_NAME)
-# DB_CONN = sqlite3.connect(DB_PATH) # PROD ENV
+DB_PATH = os.path.join(db_folder, DB_NAME)
+DB_CONN = sqlite3.connect(DB_PATH) # PROD ENV
 ##########

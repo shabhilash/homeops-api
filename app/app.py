@@ -7,7 +7,7 @@ from server.database import db_connect, db_disconnect
 from endpoints import dbcreate, log, reload
 
 # FastAPI app initialization
-app = FastAPI(title=app_config.config["app"]["name"], version=app_config.config["app"]["version"],
+app = FastAPI(title=app_config.config["app"]["name"], version="0.1.5Beta",
               description=f"{app_config.config["app"]["name"]} is a hobby project to automate my homelab maintenance")
 
 # Logger

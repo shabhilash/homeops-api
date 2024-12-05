@@ -205,7 +205,7 @@ else:
 readme_content = constant_content + endpoint_content + schema_content
 
 # Path to your README file
-readme_file_path = "../../README.md"
+readme_file_path = "../README.md"
 
 # Clear the README file content before writing fresh content
 with open(readme_file_path, "w") as file:
