@@ -18,7 +18,7 @@ loggers:
     level: INFO
     qualname: homeops
   homeops.ad:
-    level: INFO
+    level: DEBUG
     qualname: homeops.ad
   homeops.app:
     level: INFO
@@ -29,6 +29,9 @@ loggers:
   homeops.logger:
     level: INFO
     qualname: homeops.logger
+  sqlalchemy.engine.Engine:
+    level: ERROR
+    qualname: sqlalchemy.engine.Engine
   watchfiles:
     level: ERROR
     qualname: watchfiles.main

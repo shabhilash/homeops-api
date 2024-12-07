@@ -1,8 +1,8 @@
 import logging
 
 from fastapi import APIRouter
-from models.loglevel import LogLevel
-from server.logger import change_logger
+from app.models.loglevel import LogLevel
+from app.server.logger import change_logger
 
 router = APIRouter()
 

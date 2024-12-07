@@ -3,7 +3,8 @@ import os
 
 import yaml
 from fastapi import HTTPException
-from conf.log_config import LOGGERFILE
+
+from app.conf.log_config import LOGGERFILE
 
 # Logger
 logger = logging.getLogger("homeops.logger")

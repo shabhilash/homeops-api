@@ -20,17 +20,6 @@ Success Response
     curl -X GET 'http://127.0.0.1:8000/'
     ```
 
-### POST /dbcreate
-  - **Summary**: Create a new Database
-  - **Description**: This endpoint will create a database if not present and creates tables [users]
-  - **Responses**:
-    - **Status Code**: 201
-      - **Description**: Successful Response
-  - **cURL Command**:
-    ```bash
-    curl -X POST 'http://127.0.0.1:8000/dbcreate'
-    ```
-
 ### PUT /reload/ad-users
   - **Summary**: Refresh Users
   - **Description**: This endpoint will sync all the AD users to the local database

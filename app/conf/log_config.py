@@ -23,7 +23,7 @@ def check_sub_dir_exists(sub_dir):
 # Function to set up the logger
 def setup_logger():
     # Ensure the 'logs' folder exists before setting up the logger
-    check_sub_dir_exists("logs")
+    check_sub_dir_exists("../logs")
 
     # Correct path to the logging config file (adjusted for your folder structure)
     config_file = os.path.join(current_folder, 'logger.yaml')
@@ -51,5 +51,5 @@ def setup_logger():
 
 # Set up the logger and make it available globally
 logger = setup_logger()
-CONFIGFILE = os.path.join(os.path.dirname(__file__), 'settings.ini')
+CONFIGFILE = os.path.join(os.path.dirname(__file__), 'settings.yaml')
 LOGGERFILE = os.path.join(os.path.dirname(__file__), 'logger.yaml')

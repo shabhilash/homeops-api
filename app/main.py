@@ -2,9 +2,8 @@ import logging
 from contextlib import asynccontextmanager
 import uvicorn
 from fastapi import FastAPI
-from conf import app_config
-from server.database import db_connect, db_disconnect
-from endpoints import dbcreate, log, reload
+from app.conf import app_config
+from app.endpoints import log, reload
 
 # FastAPI app initialization
 app = FastAPI(title=app_config.config["app"]["name"], version="0.1.5Beta",
@@ -17,11 +16,11 @@ logger = logging.getLogger("homeops.app")
 async def lifespan():
     logger.critical("Starting Application")
     # Initialize database connection
-    await db_connect()
+
     yield
     logger.critical("Shutting down Application")
     # Close database connection
-    await db_disconnect()
+
 
 
 @app.get("/", tags=["default"], name="root", summary="Root endpoint to check if the service is running")
@@ -34,7 +33,6 @@ def read_root():
     return {"status": True}
 
 # #### DB ACTIONS ####
-app.include_router(dbcreate.router)
 app.include_router(reload.router)
 
 # #### LOGGER ACTIONS ####

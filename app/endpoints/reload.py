@@ -1,6 +1,6 @@
 from fastapi import APIRouter
 
-from server.sync_adusers import sync_ad_users
+from app.server.sync_adusers import sync_ad_users
 
 router = APIRouter()
 
