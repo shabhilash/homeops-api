@@ -1,9 +1,9 @@
 import logging
 from contextlib import asynccontextmanager
-import uvicorn
 from fastapi import FastAPI
 from app.conf import app_config
-from app.endpoints import log, reload
+from app.endpoints import log, reload, service
+from app.utils.db_init import engine
 
 # FastAPI app initialization
 app = FastAPI(title=app_config.config["app"]["name"], version="0.1.5Beta",
@@ -20,7 +20,7 @@ async def lifespan():
     yield
     logger.critical("Shutting down Application")
     # Close database connection
-
+    engine.dispose()
 
 
 @app.get("/", tags=["default"], name="root", summary="Root endpoint to check if the service is running")
@@ -38,5 +38,9 @@ app.include_router(reload.router)
 # #### LOGGER ACTIONS ####
 app.include_router(log.router)
 
+# #### SERVICE ACTIONS ####
+app.include_router(service.router)
+
 if __name__ == "__main__":
-    uvicorn.run(app, host="0.0.0.0", port=8000)
+    import uvicorn
+    uvicorn.run("main:app", host="127.0.0.1", port=8000, reload=True)

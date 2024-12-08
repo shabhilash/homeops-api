@@ -5,6 +5,7 @@ handlers:
   consoleHandler:
     class: logging.StreamHandler
     formatter: fileLog
+    level: WARNING
     stream: ext://sys.stdout
   fileHandler:
     backupCount: 3
@@ -18,7 +19,7 @@ loggers:
     level: INFO
     qualname: homeops
   homeops.ad:
-    level: DEBUG
+    level: INFO
     qualname: homeops.ad
   homeops.app:
     level: INFO
