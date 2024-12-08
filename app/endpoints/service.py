@@ -1,10 +1,6 @@
 import logging
 from enum import Enum
 
-from fastapi import APIRouter, Depends
-
-from app.utils.auth import is_superuser_required
-from app.utils.schemas import User
 
 router = APIRouter()
 
@@ -20,7 +16,6 @@ class ServiceActions(Enum):
     disable: str = "disable"
 
 @router.post(path="/service",tags=["server"])
-def service_actions(svc:str,action:ServiceActions,current_user: User = Depends(is_superuser_required())):
     """
     Systemctl actions for linux server \n
     **Supports** : *[start, stop, restart, reload, enable, disable]*
