@@ -20,7 +20,7 @@ async def lifespan():
     yield
     logger.critical("Shutting down Application")
     # Close database connection
-
+    engine.dispose()
 
 
 @app.get("/", tags=["default"], name="root", summary="Root endpoint to check if the service is running")
