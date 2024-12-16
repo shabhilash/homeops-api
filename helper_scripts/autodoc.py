@@ -6,17 +6,6 @@ This file will create a readme file with all the endpoints and its usage with ex
 Usage :
 1. Run the project (This will create openapi.json serving in localhost:8000/openapi.json)
 2. Run this script to create the documentation and validate is everything looks good
-
-Sample .env file (To be saved in app root dir)
-
-```
-ad_server=
-ad_username=
-ad_password=
-ad_domain=
-ad_basecn=
-```
-
 """
 
 # URL of the OpenAPI spec
@@ -41,6 +30,17 @@ constant_content = """
 
 A tool for automating and managing homelab operations.
 
+Sample .env file (To be saved in app root dir)
+
+```
+AD_SERVER=
+AD_USERNAME=
+AD_PASSWORD=
+AD_DOMAIN=
+AD_BASEDN="dc="
+AD_SUPERUSER_GROUP=
+SECRET_KEY=""
+```
 """
 
 # Function to generate sample request body
