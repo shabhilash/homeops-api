@@ -7,7 +7,7 @@ from app.utils.db_init import engine
 
 # FastAPI app initialization
 app = FastAPI(title=app_config.config["app"]["name"], version="0.1.5Beta",
-              description=f"{app_config.config["app"]["name"]} is a hobby project to automate my homelab maintenance")
+              description=f'{app_config.config["app"]["name"]} is a hobby project to automate my homelab maintenance')
 
 # Logger
 logger = logging.getLogger("homeops.app")
@@ -49,4 +49,4 @@ app.include_router(user.router, tags=["users"])
 
 if __name__ == "__main__":
     import uvicorn
-    uvicorn.run("main:app", host="127.0.0.1", port=8000, reload=True)
+    uvicorn.run("main:app", host="0.0.0.0", port=8000, reload=True)

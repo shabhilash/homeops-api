@@ -19,8 +19,8 @@ async def change_logger(logger_name, level):
 
     # Check if the logger exists in the logger manager's dictionary
     if logger_name not in logging.root.manager.loggerDict:
-        raise HTTPException(status_code=404, detail=f"Logger '{
-                            logger_name}' not found")
+        raise HTTPException(status_code=404,
+                            detail=f"Logger '{logger_name}' not found")
 
     # Get the logger
     modify_logger = logging.getLogger(logger_name)
