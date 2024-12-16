@@ -30,6 +30,17 @@ constant_content = """
 
 A tool for automating and managing homelab operations.
 
+Sample .env file (To be saved in app root dir)
+
+```
+AD_SERVER=
+AD_USERNAME=
+AD_PASSWORD=
+AD_DOMAIN=
+AD_BASEDN="dc="
+AD_SUPERUSER_GROUP=
+SECRET_KEY=""
+```
 """
 
 # Function to generate sample request body
