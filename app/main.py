@@ -41,6 +41,9 @@ app.include_router(log.router)
 # #### SERVICE ACTIONS ####
 app.include_router(service.router)
 
+# #### SERVICE ACTIONS ####
+app.include_router(service.router)
+
 app.include_router(auth.router, tags=["auth"])
 app.include_router(user.router, tags=["users"])
 
