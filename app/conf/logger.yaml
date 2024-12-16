@@ -36,6 +36,9 @@ loggers:
   watchfiles:
     level: ERROR
     qualname: watchfiles.main
+  passlib:
+    level: ERROR
+    qualname: passlib.*
 root:
   handlers:
   - consoleHandler

@@ -2,7 +2,7 @@ import logging
 from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from app.conf import app_config
-from app.endpoints import log, reload, service
+from app.endpoints import log, reload, service, auth, user
 from app.utils.db_init import engine
 
 # FastAPI app initialization
@@ -40,6 +40,9 @@ app.include_router(log.router)
 
 # #### SERVICE ACTIONS ####
 app.include_router(service.router)
+
+app.include_router(auth.router, tags=["auth"])
+app.include_router(user.router, tags=["users"])
 
 if __name__ == "__main__":
     import uvicorn

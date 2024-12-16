@@ -2,6 +2,8 @@ import logging
 from sqlalchemy import create_engine, text
 from sqlalchemy.orm import sessionmaker
 
+from app.conf.app_config import db_folder
+
 ##########
 # TEST ENV
 # DB_PATH = ":memory:"
@@ -10,7 +12,7 @@ from sqlalchemy.orm import sessionmaker
 
 ##########
 # PROD ENV
-DB_PATH = "D:/ash/github/homeops-api/app/db/homeops.sqlite"
+DB_PATH = f"{db_folder}/homeops.sqlite"
 ##########
 
 # Logger
