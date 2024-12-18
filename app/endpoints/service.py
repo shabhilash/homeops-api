@@ -20,7 +20,7 @@ class ServiceActions(Enum):
     disable = "disable"
 
 
-
+# noinspection PyUnusedLocal
 @router.post(path="/service")
 def service_actions(svc: str, action: ServiceActions, current_user: User = Depends(get_current_user)):
     """
