@@ -81,7 +81,7 @@ async def login_for_access_token(username: str = Form(...), password: str = Form
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid credentials")
 
     # Define token expiration time (in seconds)
-    expires_in = int(os.getenv("SESSION_TIMEOUT_SECONDS", 360))  # Default to 6 minutes
+    expires_in = int(os.getenv("SESSION_TIMEOUT_SECONDS", 360)) # This is set to 360 seconds or 6 minutes as default
 
     # Create the access token with an expiration time
     access_token = create_access_token(data={"sub": user.username}, expires_delta=timedelta(seconds=expires_in))

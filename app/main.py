@@ -15,7 +15,7 @@ app = FastAPI(title=app_config.config["app"]["name"], version="0.2",root_path="/
 logger = logging.getLogger("homeops.app")
 
 # Allow all origins
-# noinspection PyTypeChecker
+
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],  # Allows all origins

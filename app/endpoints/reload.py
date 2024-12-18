@@ -7,7 +7,6 @@ from app.utils.sync_adusers import sync_ad_users
 router = APIRouter()
 
 
-# noinspection PyUnusedLocal
 @router.put("/reload/ad-users")
 async def refresh_users(current_user: User = Depends(is_superuser_required())):
     """
