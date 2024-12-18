@@ -108,6 +108,7 @@ async def sync_ad_users():
     """
     modified_user_count = 0
     new_user_count = 0
+    # noinspection PyUnusedLocal
     total_users_fetched = 0
     try:
         logger.debug("Adding AD users to users table")

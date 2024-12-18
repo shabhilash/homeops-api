@@ -55,7 +55,7 @@ fi
 
 # Check for existing virtual environment and prompt for deletion
 if [ -d "$VENV_DIR" ]; then
-    read -p "Virtual environment already exists. Do you want to delete and recreate it? (y/n): " REPLY
+    read -p "Virtual environment already exists. Do you want to delete and recreate it? (y/n): " -r REPLY
     if [[ $REPLY =~ ^[Yy]$ ]]; then
         rm -rf $VENV_DIR
     else

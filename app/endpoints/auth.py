@@ -1,5 +1,6 @@
 import logging
-
+import os
+from datetime import timedelta, datetime, timezone
 from fastapi import APIRouter, Depends, HTTPException, status, Form
 from fastapi.security import OAuth2PasswordBearer
 from pydantic import BaseModel
@@ -7,9 +8,7 @@ from sqlalchemy.orm import Session
 from app.utils.db_init import SessionLocal
 from app.utils.db_schemas import User
 from passlib.context import CryptContext
-from jose import JWTError, jwt
-import os
-from datetime import timedelta, datetime
+from authlib.jose import jwt, JoseError
 
 # Logger
 logger = logging.getLogger("homeops.auth")
@@ -18,7 +17,7 @@ logger = logging.getLogger("homeops.auth")
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/token")
 
 # JWT Settings
-SECRET_KEY = os.getenv("SECRET_KEY", "mysecretkey")
+SECRET_KEY = os.getenv("SECRET_KEY", "my-secret-key")
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 30  # Set token expiry time
 
@@ -44,13 +43,13 @@ def verify_password(plain_password, hashed_password):
 def get_password_hash(password):
     return pwd_context.hash(password)
 
-# Function to create JWT token
+# Function to create JWT token using Authlib
 def create_access_token(data: dict, expires_delta: timedelta = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)):
     to_encode = data.copy()
-    expire = datetime.utcnow() + expires_delta
+    expire = datetime.now(timezone.utc) + expires_delta
     to_encode.update({"exp": expire})
-    encoded_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
-    return encoded_jwt
+    encoded_jwt = jwt.encode({"alg": ALGORITHM}, to_encode, SECRET_KEY)
+    return encoded_jwt.decode("utf-8")  # Return as a string for easy use
 
 # Function to get the user from the DB by username
 def get_user(db: Session, username: str):
@@ -72,7 +71,7 @@ class TokenResponse(BaseModel):
 
 @router.post("/token", response_model=TokenResponse)  # Use TokenResponse here
 async def login_for_access_token(username: str = Form(...), password: str = Form(...), db: Session = Depends(get_db)):
-    logger.debug(f"Received username: {username}, password: {password}")
+    logger.debug(f"Received request for username: {username}")
 
     # Authenticate user
     user = authenticate_user(db, username, password)

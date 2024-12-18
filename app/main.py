@@ -4,7 +4,7 @@ from fastapi import FastAPI
 from starlette.middleware.cors import CORSMiddleware
 
 from app.conf import app_config
-from app.endpoints import log, reload, service, auth, user
+from app.endpoints import log, reload, service, auth
 from app.utils.db_init import engine
 
 # FastAPI app initialization
@@ -15,6 +15,7 @@ app = FastAPI(title=app_config.config["app"]["name"], version="0.2",root_path="/
 logger = logging.getLogger("homeops.app")
 
 # Allow all origins
+
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],  # Allows all origins

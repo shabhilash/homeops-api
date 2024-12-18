@@ -12,6 +12,7 @@ router = APIRouter()
 logger = logging.getLogger("homeops.app")
 
 
+
 @router.put("/log-level", name="logger", summary="Modify Loggers on the go")
 async def log_level(logger_level: LogLevel, current_user: User = Depends(get_current_user)):
     """
