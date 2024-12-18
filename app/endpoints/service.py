@@ -21,7 +21,7 @@ class ServiceActions(Enum):
 
 
 
-@router.post(path="/service", tags=["server"])
+@router.post(path="/service")
 def service_actions(svc: str, action: ServiceActions, current_user: User = Depends(get_current_user)):
     """
     Systemctl actions for linux server \n
@@ -35,7 +35,7 @@ def service_actions(svc: str, action: ServiceActions, current_user: User = Depen
     else:
         raise HTTPException(status_code=400, detail=f"Failed to {action.value} service {svc}")
 
-@router.get(path="/service", tags=["server"])
+@router.get(path="/service")
 def service_status(svc: str):
     """
     Systemctl status for linux server \n

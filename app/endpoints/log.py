@@ -12,7 +12,7 @@ router = APIRouter()
 logger = logging.getLogger("homeops.app")
 
 
-@router.put("/log-level", tags=["logger"], name="logger", summary="Modify Loggers on the go")
+@router.put("/log-level", name="logger", summary="Modify Loggers on the go")
 async def log_level(logger_level: LogLevel, current_user: User = Depends(get_current_user)):
     """
     Endpoint to change the log level of a logger dynamically and update the config file. \n
@@ -23,7 +23,7 @@ async def log_level(logger_level: LogLevel, current_user: User = Depends(get_cur
     return {"message": result}
 
 
-@router.get("/log-list", tags=["logger"])
+@router.get("/log-list")
 async def log_list():
     """
     Endpoint to list all loggers and their current levels.
