@@ -1,22 +1,32 @@
 import logging
 from contextlib import asynccontextmanager
 from fastapi import FastAPI
+from starlette.middleware.cors import CORSMiddleware
+
 from app.conf import app_config
 from app.endpoints import log, reload, service, auth, user
 from app.utils.db_init import engine
 
 # FastAPI app initialization
-app = FastAPI(title=app_config.config["app"]["name"], version="0.1.5Beta",
-              description=f"{app_config.config["app"]["name"]} is a hobby project to automate my homelab maintenance")
+app = FastAPI(title=app_config.config["app"]["name"], version="0.2",root_path="/api",
+              description=f'{app_config.config["app"]["name"]} is a hobby project to automate my homelab maintenance')
 
 # Logger
 logger = logging.getLogger("homeops.app")
+
+# Allow all origins
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # Allows all origins
+    allow_credentials=True,
+    allow_methods=["*"],  # Allows all methods
+    allow_headers=["*"],  # Allows all headers
+)
 
 @asynccontextmanager
 async def lifespan():
     logger.critical("Starting Application")
     # Initialize database connection
-
     yield
     logger.critical("Shutting down Application")
     # Close database connection
@@ -32,21 +42,16 @@ def read_root():
     logger.debug("Root endpoint accessed")
     return {"status": True}
 
-# #### DB ACTIONS ####
-app.include_router(reload.router)
+# #### USER MANAGEMENT ####
+app.include_router(reload.router,tags=["user"])
+app.include_router(auth.router, tags=["user"])
+
+# #### SERVER ACTIONS ####
+app.include_router(service.router, tags=["server"])
 
 # #### LOGGER ACTIONS ####
-app.include_router(log.router)
-
-# #### SERVICE ACTIONS ####
-app.include_router(service.router)
-
-# #### SERVICE ACTIONS ####
-app.include_router(service.router)
-
-app.include_router(auth.router, tags=["auth"])
-app.include_router(user.router, tags=["users"])
+app.include_router(log.router, tags=["logger"])
 
 if __name__ == "__main__":
     import uvicorn
-    uvicorn.run("main:app", host="127.0.0.1", port=8000, reload=True)
+    uvicorn.run("main:app", host="0.0.0.0", port=8000, reload=True)

@@ -6,7 +6,7 @@ set -e
 # Variables
 PROJECT_DIR="/path/to/your/project"
 VENV_DIR="$PROJECT_DIR/venv"
-SERVICE_FILE="/etc/systemd/system/myproject.service"
+SERVICE_FILE="/etc/systemd/system/homeops-api.service"
 USER=$(whoami)
 REQUIRED_PYTHON_VERSION="3.8"
 LOG_FILE="$PROJECT_DIR/setup.log"
@@ -30,7 +30,7 @@ if ! command_exists python3; then
 fi
 
 PYTHON_VERSION=$(python3 -c "import sys; print('.'.join(map(str, sys.version_info[:2])))")
-if [[ "$PYTHON_VERSION" < "$REQUIRED_PYTHON_VERSION" ]]; then
+if [[ "$PYTHON_VERSION" > "$REQUIRED_PYTHON_VERSION" ]]; then
     echo "Python version $REQUIRED_PYTHON_VERSION or higher is required. Installed version: $PYTHON_VERSION."
     exit 1
 fi
@@ -91,18 +91,19 @@ fi
 echo "Creating systemd service file..."
 tee $SERVICE_FILE > /dev/null <<EOL
 [Unit]
-Description=MyProject Service
+Description=HomeOps API
 After=network.target
 
 [Service]
-User=$USER
+User=root
 WorkingDirectory=$PROJECT_DIR
-ExecStart=$VENV_DIR/bin/uvicorn app.main:app --host 0.0.0.0 --port 8000
-EnvironmentFile=$ENV_FILE
+ExecStart=$PROJECT_DIR/venv/bin/uvicorn app.main:app --host 0.0.0.0 --port 8000
+EnvironmentFile=$PROJECT_DIR/.env
 Restart=always
 
 [Install]
 WantedBy=multi-user.target
+
 EOL
 
 # Reload systemd to recognize the new service
@@ -111,12 +112,12 @@ systemctl daemon-reload
 
 # Enable and start the service
 echo "Enabling and starting the service..."
-systemctl enable myproject.service
-systemctl start myproject.service
+systemctl enable homeops-api.service
+systemctl start homeops-api.service
 
 # Check the status of the service
 echo "Checking service status..."
-if systemctl is-active --quiet myproject.service; then
+if systemctl is-active --quiet homeops-api.service; then
     echo "Service started successfully!"
 else
     echo "Failed to start service. Check the logs for more details."

@@ -7,7 +7,7 @@ from app.utils.sync_adusers import sync_ad_users
 router = APIRouter()
 
 
-@router.put("/reload/ad-users", tags=["reload"])
+@router.put("/reload/ad-users")
 async def refresh_users(current_user: User = Depends(is_superuser_required())):
     """
     This endpoint will sync all the AD users to the local database

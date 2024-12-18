@@ -30,15 +30,18 @@ loggers:
   homeops.logger:
     level: INFO
     qualname: homeops.logger
+  passlib:
+    level: ERROR
+    qualname: passlib
+  python_multipart:
+    level: ERROR
+    qualname: python_multipart
   sqlalchemy.engine.Engine:
     level: ERROR
     qualname: sqlalchemy.engine.Engine
   watchfiles:
     level: ERROR
     qualname: watchfiles.main
-  passlib:
-    level: ERROR
-    qualname: passlib.*
 root:
   handlers:
   - consoleHandler

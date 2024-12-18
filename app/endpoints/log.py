@@ -1,16 +1,19 @@
 import logging
 
-from fastapi import APIRouter
+from fastapi import APIRouter, Depends
 from app.models.loglevel import LogLevel
 from app.server.logger import change_logger
+from app.utils.auth import get_current_user
+from app.utils.schemas import User
 
 router = APIRouter()
 
 # Logger
 logger = logging.getLogger("homeops.app")
 
-@router.put("/log-level", tags=["logger"], name="logger", summary="Modify Loggers on the go")
-async def log_level(logger_level: LogLevel):
+
+@router.put("/log-level", name="logger", summary="Modify Loggers on the go")
+async def log_level(logger_level: LogLevel, current_user: User = Depends(get_current_user)):
     """
     Endpoint to change the log level of a logger dynamically and update the config file. \n
     @type logger_level: object
@@ -20,7 +23,7 @@ async def log_level(logger_level: LogLevel):
     return {"message": result}
 
 
-@router.get("/log-list", tags=["logger"])
+@router.get("/log-list")
 async def log_list():
     """
     Endpoint to list all loggers and their current levels.
