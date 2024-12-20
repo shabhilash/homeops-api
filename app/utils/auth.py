@@ -12,7 +12,7 @@ import os
 # JWT Settings
 SECRET_KEY = os.getenv("SECRET_KEY", "your-secret-key")  # Make sure to set a real secret key in production
 ALGORITHM = "HS256"
-ACCESS_TOKEN_EXPIRE_MINUTES = 30  # You can adjust this to the desired expiration time
+ACCESS_TOKEN_EXPIRE_MINUTES = int(os.getenv("SESSION_TIMEOUT_SECONDS", 360))
 
 # OAuth2PasswordBearer is used to extract the token from the "Authorization" header
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/token")

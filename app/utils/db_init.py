@@ -28,7 +28,7 @@ from app.utils.db_schemas import User
 # Password is Passw0rd
 admin_user = insert(User).values(username="homeops", first_name="Homeops", last_name="Admin",
                   email_address="homeops@homeops.local",
-                  password="$2b$12$mHqyQGhUP14wUPUaddhTQuISx4WPEzfpm3Kand5RlorNNelNueYXW", enabled=1,
+                  password="$2b$12$rvb5aM/GwludqnjH3MlM4edVK805TPzmA3pPt/iwp1WvmzXuwcSdq", enabled=1,
                   is_superuser=1).prefix_with("OR IGNORE", dialect="sqlite")
 with engine.connect() as conn:
     result = conn.execute(admin_user)

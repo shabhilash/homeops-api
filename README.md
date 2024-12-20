@@ -5,17 +5,6 @@
 
 A tool for automating and managing homelab operations.
 
-Sample .env file (To be saved in app root dir)
-
-```
-AD_SERVER=
-AD_USERNAME=
-AD_PASSWORD=
-AD_DOMAIN=
-AD_BASEDN="dc="
-AD_SUPERUSER_GROUP=
-SECRET_KEY=""
-```
 ## API Endpoints
 
 ### GET /
@@ -42,39 +31,27 @@ Success Response
     curl -X PUT 'http://127.0.0.1:8000/reload/ad-users'
     ```
 
-### PUT /log-level
-  - **Summary**: Modify Loggers on the go
-  - **Description**: Endpoint to change the log level of a logger dynamically and update the config file. 
-
-@type logger_level: object
-  - **Request Body**: [LogLevel](#loglevel)
+### POST /token
+  - **Summary**: Login For Access Token
+  - **Description**: No description provided
+  - **Request Body**: [Body_login_for_access_token_token_post](#body_login_for_access_token_token_post)
 
 ```json
 {
-  "logger_name": "sample_value",
-  "level": "sample_value"
+  "username": "sample_value",
+  "password": "sample_value"
 }
 ```
   - **Responses**:
     - **Status Code**: 200
       - **Description**: Successful Response
+      - **Schema Reference**: [TokenResponse](#tokenresponse)
     - **Status Code**: 422
       - **Description**: Validation Error
       - **Schema Reference**: [HTTPValidationError](#httpvalidationerror)
   - **cURL Command**:
     ```bash
-    curl -X PUT 'http://127.0.0.1:8000/log-level' -H 'Content-Type: application/json' -d '"{  "logger_name": "sample_value",  "level": "sample_value"}"'
-    ```
-
-### GET /log-list
-  - **Summary**: Log List
-  - **Description**: Endpoint to list all loggers and their current levels.
-  - **Responses**:
-    - **Status Code**: 200
-      - **Description**: Successful Response
-  - **cURL Command**:
-    ```bash
-    curl -X GET 'http://127.0.0.1:8000/log-list'
+    curl -X POST 'http://127.0.0.1:8000/token' -H 'Content-Type: application/json' -d '"{  "username": "sample_value",  "password": "sample_value"}"'
     ```
 
   - **cURL Command**:
@@ -136,39 +113,39 @@ Success Response
     curl -X GET 'http://127.0.0.1:8000/service'
     ```
 
-### POST /token
-  - **Summary**: Login For Access Token
-  - **Description**: No description provided
-  - **Request Body**: [Body_login_for_access_token_token_post](#body_login_for_access_token_token_post)
+### PUT /log-level
+  - **Summary**: Modify Loggers on the go
+  - **Description**: Endpoint to change the log level of a logger dynamically and update the config file. 
+
+@type logger_level: object
+  - **Request Body**: [LogLevel](#loglevel)
 
 ```json
 {
-  "username": "sample_value",
-  "password": "sample_value"
+  "logger_name": "sample_value",
+  "level": "sample_value"
 }
 ```
   - **Responses**:
     - **Status Code**: 200
       - **Description**: Successful Response
-      - **Schema Reference**: [TokenResponse](#tokenresponse)
     - **Status Code**: 422
       - **Description**: Validation Error
       - **Schema Reference**: [HTTPValidationError](#httpvalidationerror)
   - **cURL Command**:
     ```bash
-    curl -X POST 'http://127.0.0.1:8000/token' -H 'Content-Type: application/json' -d '"{  "username": "sample_value",  "password": "sample_value"}"'
+    curl -X PUT 'http://127.0.0.1:8000/log-level' -H 'Content-Type: application/json' -d '"{  "logger_name": "sample_value",  "level": "sample_value"}"'
     ```
 
-### GET /users/me
-  - **Summary**: Read Users Me
-  - **Description**: No description provided
+### GET /log-list
+  - **Summary**: Log List
+  - **Description**: Endpoint to list all loggers and their current levels.
   - **Responses**:
     - **Status Code**: 200
       - **Description**: Successful Response
-      - **Schema Reference**: [UserBase](#userbase)
   - **cURL Command**:
     ```bash
-    curl -X GET 'http://127.0.0.1:8000/users/me'
+    curl -X GET 'http://127.0.0.1:8000/log-list'
     ```
 
 ## Schema Section
@@ -207,18 +184,6 @@ Success Response
       - Description: Token Type
     - **expires_in** (integer)
       - Description: Expires In
-
-### userbase
-  - **Type**: object
-  - **Properties**:
-    - **username** (string)
-      - Description: Username
-    - **first_name** (unknown)
-      - Description: First Name
-    - **last_name** (unknown)
-      - Description: Last Name
-    - **email_address** (string)
-      - Description: Email Address
 
 ### validationerror
   - **Type**: object
