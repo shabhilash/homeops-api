@@ -4,7 +4,7 @@ from fastapi import FastAPI
 from starlette.middleware.cors import CORSMiddleware
 
 from app.conf import app_config
-from app.endpoints import log, reload, service, auth, disk_usage
+from app.endpoints import log, reload, service, auth, disk_usage, cpu_usage, memory_usage
 from app.utils.db_init import engine
 
 # FastAPI app initialization
@@ -48,8 +48,10 @@ app.include_router(reload.router,tags=["user"])
 app.include_router(auth.router, tags=["user"])
 
 # #### SERVER ACTIONS ####
-app.include_router(service.router, tags=["server"])
+app.include_router(service.router,prefix="/server", tags=["server"])
 app.include_router(disk_usage.router,prefix="/server", tags=["server"])
+app.include_router(cpu_usage.router,prefix="/server", tags=["server"])
+app.include_router(memory_usage.router,prefix="/server", tags=["server"])
 
 # #### LOGGER ACTIONS ####
 app.include_router(log.router, tags=["logger"])
