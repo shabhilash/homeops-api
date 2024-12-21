@@ -157,24 +157,31 @@ fi
 # Check for existing virtual environment and prompt for deletion
 if [ -d "$VENV_DIR" ]; then
     read -p "Virtual environment already exists. Do you want to delete and recreate it? (y/n): " -r REPLY
-    if [[ $REPLY =~ ^[Yy]$ ]]; then
+    if [[ $REPLY =~ ^[Yy][Ee][Ss]?$ ]]; then
         log_info "Removing existing virtual environment..."
         rm -rf "$VENV_DIR"
+        log_info "Creating virtual environment..."
+        python3 -m venv "$VENV_DIR"
+        log_info "Activating virtual environment and installing dependencies..."
+        source "$VENV_DIR"/bin/activate
+        pip install --upgrade pip
+        pip install -r "$PROJECT_DIR"/requirements.txt
     else
-        log_info "Exiting setup."
-        exit 1
+        log_info "Updating existing virtual environment..."
+        source "$VENV_DIR"/bin/activate
+        pip install --upgrade pip
+        pip install -r "$PROJECT_DIR"/requirements.txt
     fi
+else
+    log_info "Creating virtual environment..."
+    python3 -m venv "$VENV_DIR"
+    log_info "Activating virtual environment and installing dependencies..."
+    source "$VENV_DIR"/bin/activate
+    pip install --upgrade pip
+    pip install -r "$PROJECT_DIR"/requirements.txt
 fi
 
-# Create a virtual environment
-log_info "Creating virtual environment..."
-python3 -m venv "$VENV_DIR"
 
-# Activate the virtual environment and install dependencies
-log_info "Activating virtual environment and installing dependencies..."
-source "$VENV_DIR"/bin/activate
-pip install --upgrade pip
-pip install -r "$PROJECT_DIR"/requirements.txt
 
 # Create .env file if .env.sample exists
 if [ -f "$SAMPLE_ENV_FILE" ]; then
