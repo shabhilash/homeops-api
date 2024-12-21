@@ -16,10 +16,12 @@ VERBOSE=0
 NO_BACKUP=0  # Default: Backup is taken
 SKIP_TESTS=0  # Default: Tests are run
 
+
 # Function to check if a command exists
 command_exists() {
     command -v "$1" >/dev/null 2>&1
 }
+
 
 # Function to log messages with timestamp and log level
 log() {
@@ -35,6 +37,7 @@ log() {
 log_error() {
     log "ERROR" "$1"
     exit 1
+
 }
 
 # Function to perform health check
@@ -123,7 +126,8 @@ fi
 
 # Check if git is installed
 if ! command_exists git; then
-    log_error "Git is not installed. Please install Git."
+    log "Git is not installed. Please install Git."
+    exit 1
 fi
 
 # Check if project directory exists
@@ -187,5 +191,9 @@ fi
 # Post-update tasks
 post_update
 
-# Final completion message
-log "INFO" "Update completed successfully!"
+
+# Cleanup old backups (optional)
+log "Cleaning up old backups..."
+find $BACKUP_DIR -type f -mtime +7 -exec rm {} \;
+
+log "Update completed successfully!"
