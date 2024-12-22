@@ -1,26 +1,44 @@
 import logging
 import os
-
 import yaml
-from fastapi import HTTPException
 
 from app.conf.log_config import LOGGERFILE
+from app.exceptions.logger_error import *
 
 # Logger
 logger = logging.getLogger("homeops.logger")
 
+
 async def change_logger(logger_name, level):
     """
-    Endpoint to change the log level of a logger dynamically and update the config file.
+    Endpoint to dynamically change the log level of a logger and update the configuration file.
+
+    **Parameters:**
+    - `logger_name` (str): The name of the logger whose level is to be changed.
+    - `level` (str): The log level to set. Valid values are "DEBUG", "INFO", "WARNING", "ERROR", and "CRITICAL".
+
+    **Returns:**
+    - str: Confirmation message indicating the log level was successfully updated.
+
+    **Raises:**
+    - `InvalidLogLevel`: If the provided log level is not valid.
+    - `LoggerNotFound`: If the specified logger name does not exist in the logging manager.
+    - `ConfigFileNotFound`: If the configuration file is missing or not found.
+    - `LoggerUpdateError`: If there is a failure while updating the logger configuration.
+
+    **Error Codes:**
+    - `INVALID_LOG_LEVEL_001`: Raised when an invalid log level is provided.
+    - `LOGGER_NOT_FOUND_001`: Raised when the specified logger is not found.
+    - `CONFIG_FILE_NOT_FOUND_001`: Raised when the configuration file cannot be found.
+    - `LOGGER_UPDATE_ERROR_001`: Raised when an error occurs during the update of the logger configuration.
     """
     # Validate log level
     if level not in ["DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"]:
-        raise HTTPException(status_code=400, detail="Invalid log level")
+        raise InvalidLogLevel()
 
     # Check if the logger exists in the logger manager's dictionary
     if logger_name not in logging.root.manager.loggerDict:
-        raise HTTPException(status_code=404,
-                            detail=f"Logger '{logger_name}' not found")
+        raise LoggerNotFound()
 
     # Get the logger
     modify_logger = logging.getLogger(logger_name)
@@ -30,7 +48,13 @@ async def change_logger(logger_name, level):
     modify_logger.warning(f"Log level of logger {logger_name} set to {level}")
 
     # Update the log level in the configuration file
-    await update_log_level_in_config(logger_name, level)
+    try:
+        await update_log_level_in_config(logger_name, level)
+    except FileNotFoundError:
+        raise ConfigFileNotFound()
+    except Exception as e:
+        logger.error(f"Error updating logger config: {e}")
+        raise LoggerUpdateError()
 
     return f"Log level of logger '{logger_name}' set to {level}"
 
@@ -38,7 +62,19 @@ async def change_logger(logger_name, level):
 # Function to update the log level in the YAML config file
 async def update_log_level_in_config(logger_name: str, level: str):
     """
-    Update the log level of the logger in the YAML config file.
+    Update the log level of the logger in the YAML configuration file.
+
+    **Parameters:**
+    - `logger_name` (str): The name of the logger to update.
+    - `level` (str): The new log level to set for the logger.
+
+    **Raises:**
+    - `FileNotFoundError`: If the configuration file cannot be found.
+    - `LoggerNotInConfig`: If the logger is not found in the YAML configuration file.
+
+    **Error Codes:**
+    - `CONFIG_FILE_NOT_FOUND_001`: Raised when the configuration file cannot be found.
+    - `LOGGER_NOT_IN_CONFIG_001`: Raised when the logger is not found in the config file.
     """
     # Load the existing YAML config file
     if not os.path.exists(LOGGERFILE):
@@ -47,16 +83,11 @@ async def update_log_level_in_config(logger_name: str, level: str):
     with open(LOGGERFILE, 'r') as file:
         config = yaml.safe_load(file)
 
-
     # Check if the logger section exists
     if logger_name not in config['loggers']:
         # This can be disabled since the response should be success even if it was not updated on the config file,
         # as not all config is expected to be in the logger file
-        raise HTTPException(status_code=200, detail={
-            "status": "warning",
-            "message": f"'{logger_name}' - Logger level Updated. but the logger was not found in the config file",
-            "action": "Verify if the logger is available in the settings.yaml"
-        })
+        raise LoggerNotInConfig(logger_name)
 
     # Update the level in the config dictionary
     config['loggers'][logger_name]['level'] = level
@@ -69,4 +100,3 @@ async def update_log_level_in_config(logger_name: str, level: str):
     # Log the update
     main_logger = logging.getLogger('homeops')
     main_logger.info(f"Updated log level of '{logger_name}' to {level} in config file")
-

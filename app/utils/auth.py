@@ -2,10 +2,11 @@ from authlib.jose import jwt, JoseError
 from datetime import datetime, timedelta, timezone
 from typing import Optional, Any, Dict
 from passlib.context import CryptContext
-from fastapi import Depends, HTTPException
+from fastapi import Depends
 from fastapi.security import OAuth2PasswordBearer
 from sqlalchemy.orm import Session
 from app.endpoints.auth import get_db
+from app.exceptions.exceptions import CustomHTTPException
 from app.utils.db_schemas import User
 import os
 
@@ -50,14 +51,15 @@ def verify_token(token: str) -> Optional[Dict[str, Any]]:
         payload = jwt.decode(token, SECRET_KEY)
         return payload
     except JoseError:
-        raise HTTPException(status_code=401, detail="Invalid or expired token")
+        raise CustomHTTPException(status_code=401, detail="Invalid or expired token", code="INVALID_TOKEN_001")
 
 
 def get_current_user(token: str = Depends(oauth2_scheme), db: Session = Depends(get_db)):
-    credentials_exception = HTTPException(
+    credentials_exception = CustomHTTPException(
         status_code=401,
         detail="Could not validate credentials",
         headers={"WWW-Authenticate": "Bearer"},
+        code="INVALID_CREDENTIALS_003"
     )
     try:
         # Decode the JWT token using Authlib
@@ -77,7 +79,7 @@ def get_current_user(token: str = Depends(oauth2_scheme), db: Session = Depends(
 def role_required(role: str):
     def role_dependency(current_user: User = Depends(get_current_user)):
         if current_user.role != role:
-            raise HTTPException(status_code=403, detail="Insufficient permissions")
+            raise CustomHTTPException(status_code=403, detail="Insufficient permissions", code="INSUFFICIENT_PERMISSIONS_001")
         return current_user
     return role_dependency
 
@@ -85,9 +87,12 @@ def role_required(role: str):
 def is_superuser_required():
     def superuser_dependency(current_user: User = Depends(get_current_user)):
         if not current_user.is_superuser:
-            raise HTTPException(
+            raise CustomHTTPException(
                 status_code=403,  # FORBIDDEN
                 detail="User does not have superuser permissions",
+                code="SUPERUSER_REQUIRED_001"
             )
         return current_user
     return superuser_dependency
+
+

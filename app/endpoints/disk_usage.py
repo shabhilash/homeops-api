@@ -3,6 +3,8 @@ from fastapi import APIRouter, HTTPException
 import subprocess
 import os
 
+from app.exceptions.server_error import *
+
 # Logger
 logger = logging.getLogger("homeops.server")
 
@@ -10,15 +12,35 @@ logger = logging.getLogger("homeops.server")
 router = APIRouter()
 
 
+
+
 @router.get("/disk-usage")
 def get_all_disk_usage():
+    """
+    Endpoint to retrieve disk usage statistics using the 'df' command.
+
+    **Returns:**
+    - `disk_usage_list` (list): A list of dictionaries containing disk usage data.
+
+    **Raises:**
+    - `DiskCommandNotFoundError`: Raised when the 'df' command is not found.
+    - `DiskUsageFetchError`: Raised when there is a failure to fetch disk usage.
+    - `DiskUsageSubprocessError`: Raised if a subprocess error occurs.
+    - `DiskUsageFileNotFoundError`: Raised when a required file is not found.
+
+    **Error Codes:**
+    - `DISK_COMMAND_NOT_FOUND_001`: Raised when the 'df' command is not available on the system.
+    - `DISK_USAGE_FETCH_ERROR_001`: Raised when an error occurs while fetching disk usage.
+    - `DISK_USAGE_SUBPROCESS_ERROR_001`: Raised when a subprocess error occurs while running the 'df' command.
+    - `DISK_USAGE_FILE_NOT_FOUND_001`: Raised when the 'df' command or a required file is missing.
+    """
     logger.info("Fetching disk usage statistics")
 
     try:
         # Check if the system is Unix-based (df command exists)
         if not os.path.exists("/bin/df"):
             logger.error("The 'df' command is not available on this system")
-            raise HTTPException(status_code=501, detail="The 'df' command is not available on this system")
+            raise DiskCommandNotFoundError()
 
         # Run the 'df' command to get disk usage stats for all mounted file systems
         result = subprocess.run(['df', '-h'], stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
@@ -26,7 +48,7 @@ def get_all_disk_usage():
         # If the 'df' command fails
         if result.returncode != 0:
             logger.error("Failed to execute 'df' command")
-            raise HTTPException(status_code=500, detail="Failed to fetch disk usage using the 'df' command")
+            raise DiskUsageFetchError()
 
         logger.info("Successfully fetched disk usage data")
 
@@ -65,12 +87,12 @@ def get_all_disk_usage():
     except subprocess.CalledProcessError as e:
         # Handle subprocess errors (e.g., command execution failure)
         logger.error(f"Subprocess error: {e}")
-        raise HTTPException(status_code=500, detail=f"Subprocess error: {e}")
+        raise DiskUsageSubprocessError(str(e))
 
     except FileNotFoundError as e:
         # Handle missing executable (e.g., 'df' command not found)
         logger.error(f"File not found: {e}")
-        raise HTTPException(status_code=404, detail=f"File not found: {e}")
+        raise DiskUsageFileNotFoundError(str(e))
 
     except Exception as e:
         # General error handler for unexpected errors
