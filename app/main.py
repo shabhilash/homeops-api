@@ -1,14 +1,12 @@
 import logging
 from contextlib import asynccontextmanager
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI
 from starlette.middleware.cors import CORSMiddleware
 
 from app.conf import app_config
 from app.endpoints import log, reload, service, auth, disk_usage, cpu_usage, memory_usage
-from app.exceptions.exceptions import UserNotFoundError, InvalidPasswordError
-from app.exceptions.handlers import invalid_username_exception_handler, invalid_password_exception_handler, \
-    general_exception_handler
-from app.utils.db_init import engine, create_admin_user, test_db_connection
+from app.exceptions.handlers import *
+from app.utils.db_init import engine
 
 # FastAPI app initialization
 app = FastAPI(title=app_config.config["app"]["name"], version="0.2", root_path="/api",
@@ -50,6 +48,8 @@ def read_root():
 # #### EXCEPTION HANLDERS ####
 app.add_exception_handler(UserNotFoundError, invalid_username_exception_handler)
 app.add_exception_handler(InvalidPasswordError, invalid_password_exception_handler)
+app.add_exception_handler(InvalidTokenError, invalid_token_exception_handler)
+app.add_exception_handler(PermissionDeniedError, permission_denied_exception_handler)
 app.add_exception_handler(HTTPException, general_exception_handler)
 
 # #### USER MANAGEMENT ####

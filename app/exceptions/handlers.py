@@ -39,7 +39,7 @@ async def invalid_password_exception_handler(request: Request, exc: InvalidPassw
 async def permission_denied_exception_handler(request: Request, exc: PermissionDeniedError)-> JSONResponse:
     problem_details = ProblemDetails(
         type="https://example.com/errors",
-        title="Invalid Password",
+        title="Permission Denied",
         status=exc.status_code,
         detail=str(exc.detail),
         instance=str(request.url),code=exc.code
@@ -49,6 +49,18 @@ async def permission_denied_exception_handler(request: Request, exc: PermissionD
         content=problem_details.model_dump()
     )
 
+async def invalid_token_exception_handler(request: Request, exc: InvalidTokenError)-> JSONResponse:
+    problem_details = ProblemDetails(
+        type="https://example.com/errors",
+        title="Invalid Token",
+        status=exc.status_code,
+        detail=str(exc.detail),
+        instance=str(request.url),code=exc.code
+    )
+    return JSONResponse(
+        status_code=exc.status_code,
+        content=problem_details.model_dump()
+    )
 
 async def general_exception_handler(request: Request, exc: HTTPException) -> JSONResponse:
     if hasattr(exc, 'code'):

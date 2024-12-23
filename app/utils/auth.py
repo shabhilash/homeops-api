@@ -6,7 +6,8 @@ from fastapi import Depends
 from fastapi.security import OAuth2PasswordBearer
 from sqlalchemy.orm import Session
 from app.endpoints.auth import get_db
-from app.exceptions.exceptions import CustomHTTPException
+from app.exceptions.exceptions import CustomHTTPException, UserNotFoundError, \
+    InvalidPasswordError
 from app.utils.db_schemas import User
 import os
 
@@ -51,28 +52,25 @@ def verify_token(token: str) -> Optional[Dict[str, Any]]:
         payload = jwt.decode(token, SECRET_KEY)
         return payload
     except JoseError:
-        raise CustomHTTPException(status_code=401, detail="Invalid or expired token", code="INVALID_TOKEN_001")
+        raise CustomHTTPException(status_code=401, detail="Invalid or expired token", code="INVALID_TOKEN_002")
 
 
 def get_current_user(token: str = Depends(oauth2_scheme), db: Session = Depends(get_db)):
-    credentials_exception = CustomHTTPException(
-        status_code=401,
-        detail="Could not validate credentials",
-        headers={"WWW-Authenticate": "Bearer"},
-        code="INVALID_CREDENTIALS_003"
-    )
     try:
         # Decode the JWT token using Authlib
         payload = jwt.decode(token, SECRET_KEY)
         username: str = payload.get("sub")
         if username is None:
-            raise credentials_exception
-        # You can add a database query here to fetch the user from the DB if needed
+            raise UserNotFoundError(detail="Username not found in the token", code="INVALID_USER_002")
+
+        # Fetch the user from the database
         user = db.query(User).filter(username == User.username).first()
         if user is None:
-            raise credentials_exception
+            raise UserNotFoundError(detail="User not found in DB", code="INVALID_USER_003")
+
     except JoseError:
-        raise credentials_exception
+        raise InvalidPasswordError(detail="Token is invalid or expired", code="INVALID_CREDENTIALS_003")
+
     return user
 
 
