@@ -1,12 +1,12 @@
 from fastapi.responses import JSONResponse
-from fastapi import Request
+from fastapi import Request,Response
 
 from app.exceptions.exceptions import *
 from app.models.problem_details import ProblemDetails
 
 
 # Custom exception handler for Invalid Username Error
-async def invalid_username_exception_handler(request: Request, exc: UserNotFoundError):
+async def invalid_username_exception_handler(request: Request, exc: UserNotFoundError) -> Response:
     problem_details = ProblemDetails(
         type="https://example.com/errors",
         title="Invalid Username",
@@ -15,6 +15,8 @@ async def invalid_username_exception_handler(request: Request, exc: UserNotFound
         instance=str(request.url),
         code=exc.code
     )
+
+
     return JSONResponse(
         status_code=exc.status_code,
         content=problem_details.model_dump()
@@ -78,5 +80,5 @@ async def general_exception_handler(request: Request, exc: HTTPException) -> JSO
     )
     return JSONResponse(
         status_code=exc.status_code,
-        content=problem_details.dict()  # Convert to dictionary
+        content=problem_details.model_dump()
     )

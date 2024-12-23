@@ -135,9 +135,6 @@ if [ ! -d "$PROJECT_DIR" ]; then
     log_error "Project directory $PROJECT_DIR does not exist. Please ensure the path is correct."
 fi
 
-# Initialize progress
-TOTAL_STEPS=8
-CURRENT_STEP=0
 
 # Navigate to project directory
 cd "$PROJECT_DIR"

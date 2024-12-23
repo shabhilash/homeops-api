@@ -34,7 +34,7 @@ async def log_level(logger_level: LogLevel, current_user: User = Depends(get_cur
     - `LOGGER_NOT_FOUND_002`: Raised when the logger is not found in the logging manager.
     - `LOGGER_UPDATE_ERROR_002`: Raised when an error occurs during the update of the logger configuration.
     """
-    logger.debug("Endpoint Reached - PUT - /log-level")
+    logger.debug(f"Endpoint Reached - PUT - /log-level by user {current_user.username}")
 
     # Call to change the logger's log level
     result = await change_logger(logger_level.logger_name, logger_level.level.upper())

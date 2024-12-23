@@ -61,7 +61,7 @@ def service_actions(svc: str, action: str, current_user: User = Depends(get_curr
     Raises:
         CustomHTTPException: If the service action fails.
     """
-    logger.debug(f"Endpoint reached - POST - /service with action: {action} for service: {svc}")
+    logger.debug(f"Endpoint reached - POST - /service with action: {action} for service: {svc} by user {current_user.username}")
 
     try:
         action_enum = validate_service_action(action)

@@ -15,8 +15,7 @@ app = FastAPI(title=app_config.config["app"]["name"], version="0.2", root_path="
 # Logger
 logger = logging.getLogger("homeops.app")
 
-# Allow all origins
-
+# noinspection PyTypeChecker
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],  # Allows all origins
@@ -24,7 +23,6 @@ app.add_middleware(
     allow_methods=["*"],  # Allows all methods
     allow_headers=["*"],  # Allows all headers
 )
-
 
 @asynccontextmanager
 async def lifespan():
@@ -46,11 +44,26 @@ def read_root():
 
 
 # #### EXCEPTION HANLDERS ####
-app.add_exception_handler(UserNotFoundError, invalid_username_exception_handler)
-app.add_exception_handler(InvalidPasswordError, invalid_password_exception_handler)
-app.add_exception_handler(InvalidTokenError, invalid_token_exception_handler)
-app.add_exception_handler(PermissionDeniedError, permission_denied_exception_handler)
-app.add_exception_handler(HTTPException, general_exception_handler)
+@app.exception_handler(UserNotFoundError)
+async def user_not_found_exception_handler(request: Request, exc: UserNotFoundError):
+    return await user_not_found_exception_handler(request, exc)
+
+@app.exception_handler(InvalidPasswordError)
+async def invalid_password_exception_handler(request: Request, exc: InvalidPasswordError):
+    return await invalid_password_exception_handler(request, exc)
+
+@app.exception_handler(InvalidTokenError)
+async def invalid_token_exception_handler(request: Request, exc: InvalidTokenError):
+    return await invalid_token_exception_handler(request, exc)
+
+@app.exception_handler(PermissionDeniedError)
+async def permission_denied_exception_handler(request: Request, exc: PermissionDeniedError):
+    return await permission_denied_exception_handler(request, exc)
+
+@app.exception_handler(HTTPException)
+async def general_exception_handler(request: Request, exc: HTTPException):
+    return await general_exception_handler(request, exc)
+
 
 # #### USER MANAGEMENT ####
 app.include_router(reload.router, tags=["user"])

@@ -57,7 +57,7 @@ def create_access_token(data: dict, expires_delta: timedelta = timedelta(minutes
 
 # Function to get the user from the DB by username
 def get_user(db: Session, username: str):
-    return db.query(User).filter(User.username == username).first()
+    return db.query(User).filter(username == User.username).first()
 
 # Function to authenticate the user
 def authenticate_user(db: Session, username: str, password: str):

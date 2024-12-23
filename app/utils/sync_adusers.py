@@ -4,7 +4,6 @@ import bcrypt
 from dotenv import load_dotenv
 
 import logging
-from fastapi import HTTPException
 from ldap3 import ALL, SAFE_SYNC, Connection, Server
 
 from app.exceptions.exceptions import CustomHTTPException
