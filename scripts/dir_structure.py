@@ -19,4 +19,4 @@ def list_files(startpath):
         for f in files:
             print(f'{subindent}{f}')
 
-list_files(os.getcwd())
+list_files(os.path.dirname(os.getcwd()))
