@@ -63,6 +63,7 @@ async def change_logger(logger_name, level):
 async def update_log_level_in_config(logger_name: str, level: str):
     """
     Update the log level of the logger in the YAML configuration file.
+    If the logger does not exist, a new entry is created with the given settings.
 
     **Parameters:**
     - `logger_name` (str): The name of the logger to update.
@@ -70,7 +71,7 @@ async def update_log_level_in_config(logger_name: str, level: str):
 
     **Raises:**
     - `FileNotFoundError`: If the configuration file cannot be found.
-    - `LoggerNotInConfig`: If the logger is not found in the YAML configuration file.
+    - `LoggerNotInConfig`: If the logger is not found and creation fails.
 
     **Error Codes:**
     - `CONFIG_FILE_NOT_FOUND_001`: Raised when the configuration file cannot be found.
@@ -85,18 +86,23 @@ async def update_log_level_in_config(logger_name: str, level: str):
 
     # Check if the logger section exists
     if logger_name not in config['loggers']:
-        # This can be disabled since the response should be success even if it was not updated on the config file,
-        # as not all config is expected to be in the logger file
-        raise LoggerNotInConfig(logger_name)
+        # Create a new logger entry if it does not exist
+        config['loggers'][logger_name] = {
+            'level': level,
+            # 'handlers': [],  # Add handlers as per your default configuration
+            # 'propagate': False  # Default propagate value
+        }
+        logger.info(f"Logger '{logger_name}' not found. Created new entry with level '{level}'.")
 
-    # Update the level in the config dictionary
-    config['loggers'][logger_name]['level'] = level
+    else:
+        # Update the level in the config dictionary
+        config['loggers'][logger_name]['level'] = level
+        logger.debug(f"Updated log level of logger '{logger_name}' to '{level}'.")
 
-    logger.debug(f"config = {config}")
     # Save the updated config back to the YAML file
     with open(LOGGERFILE, 'w') as file:
         yaml.safe_dump(config, file)
 
     # Log the update
     main_logger = logging.getLogger('homeops')
-    main_logger.info(f"Updated log level of '{logger_name}' to {level} in config file")
+    main_logger.info(f"Updated log level of '{logger_name}' to {level} in config file.")

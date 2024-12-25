@@ -1,7 +1,12 @@
 import logging
 from contextlib import asynccontextmanager
+from sys import prefix
+
 from fastapi import FastAPI
 from starlette.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
+from starlette.responses import HTMLResponse
+from starlette.templating import Jinja2Templates
 
 from app.conf import app_config
 from app.endpoints import log, reload, service, auth, disk_usage, cpu_usage, memory_usage
@@ -9,7 +14,7 @@ from app.exceptions.handlers import *
 from app.utils.db_init import engine
 
 # FastAPI app initialization
-app = FastAPI(title=app_config.config["app"]["name"], version="0.2", root_path="/api",
+app = FastAPI(title=app_config.config["app"]["name"], version="0.2",
               description=f'{app_config.config["app"]["name"]} is a hobby project to automate my homelab maintenance')
 
 # Logger
@@ -45,23 +50,23 @@ def read_root():
 
 # #### EXCEPTION HANLDERS ####
 @app.exception_handler(UserNotFoundError)
-async def user_not_found_exception_handler(request: Request, exc: UserNotFoundError):
-    return await user_not_found_exception_handler(request, exc)
+async def user_not_found_error_handler(request: Request, exc: UserNotFoundError):
+    return await invalid_username_exception_handler(request, exc)
 
 @app.exception_handler(InvalidPasswordError)
-async def invalid_password_exception_handler(request: Request, exc: InvalidPasswordError):
+async def invalid_password_error_handler(request: Request, exc: InvalidPasswordError):
     return await invalid_password_exception_handler(request, exc)
 
 @app.exception_handler(InvalidTokenError)
-async def invalid_token_exception_handler(request: Request, exc: InvalidTokenError):
+async def invalid_token_error_handler(request: Request, exc: InvalidTokenError):
     return await invalid_token_exception_handler(request, exc)
 
 @app.exception_handler(PermissionDeniedError)
-async def permission_denied_exception_handler(request: Request, exc: PermissionDeniedError):
+async def permission_denied_error_handler(request: Request, exc: PermissionDeniedError):
     return await permission_denied_exception_handler(request, exc)
 
 @app.exception_handler(HTTPException)
-async def general_exception_handler(request: Request, exc: HTTPException):
+async def general_error_handler(request: Request, exc: HTTPException):
     return await general_exception_handler(request, exc)
 
 
@@ -77,6 +82,14 @@ app.include_router(memory_usage.router, prefix="/server", tags=["server"])
 
 # #### LOGGER ACTIONS ####
 app.include_router(log.router, tags=["logger"])
+
+# #### WEB UI ####
+templates = Jinja2Templates(directory="templates")
+
+@app.get("/config/logger", response_class=HTMLResponse,tags=["web"])
+async def get_config(request: Request):
+    return templates.TemplateResponse("logger.html", {"request": request})
+
 
 if __name__ == "__main__":
     import uvicorn
