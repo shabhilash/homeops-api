@@ -10,18 +10,16 @@ SERVICE_NAME="homeops-api.service"
 LOG_FILE="$PROJECT_DIR/update.log"
 BACKUP_DIR="/tmp/backups"
 BACKUP_FILE="$BACKUP_DIR/$(date +%Y%m%d%H%M%S).tar.gz"
-BRANCH="main"
+BRANCH="main"  # Default branch
 HEALTH_CHECK_URL="http://localhost:8000/"
 VERBOSE=0
 NO_BACKUP=0  # Default: Backup is taken
 SKIP_TESTS=0  # Default: Tests are run
 
-
 # Function to check if a command exists
 command_exists() {
     command -v "$1" >/dev/null 2>&1
 }
-
 
 # Function to log messages with timestamp and log level
 log() {
@@ -37,7 +35,6 @@ log() {
 log_error() {
     log "ERROR" "$1"
     exit 1
-
 }
 
 # Function to perform health check
@@ -102,7 +99,7 @@ while [[ $# -gt 0 ]]; do
             shift
             ;;
         -h|--help)
-            echo "Usage: HOMEOPS_DIR=/path/to/your/project ./update.sh [-v|--verbose] [-h|--help] [--no-backup] [--skip-tests]"
+            echo "Usage: HOMEOPS_DIR=/path/to/your/project ./update.sh [-v|--verbose] [-h|--help] [--no-backup] [--skip-tests] [--branch BRANCH]"
             exit 0
             ;;
         --no-backup)
@@ -112,6 +109,10 @@ while [[ $# -gt 0 ]]; do
         --skip-tests)
             SKIP_TESTS=1
             shift
+            ;;
+        --branch)
+            BRANCH="$2"
+            shift 2
             ;;
         *)
             log_error "Unknown option: $1"
@@ -134,7 +135,6 @@ fi
 if [ ! -d "$PROJECT_DIR" ]; then
     log_error "Project directory $PROJECT_DIR does not exist. Please ensure the path is correct."
 fi
-
 
 # Navigate to project directory
 cd "$PROJECT_DIR"
@@ -187,7 +187,6 @@ fi
 
 # Post-update tasks
 post_update
-
 
 # Cleanup old backups (optional)
 log "Cleaning up old backups..."
