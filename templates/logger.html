@@ -107,7 +107,7 @@
         loginData.append("password", password);
 
         // Make the login request using fetch
-        fetch("/token", {
+        fetch("/user/auth", {
             method: "POST",
             headers: {
                 "Content-Type": "application/x-www-form-urlencoded", // Ensure form encoding

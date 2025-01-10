@@ -72,7 +72,7 @@ async def general_error_handler(request: Request, exc: HTTPException):
 
 # #### USER MANAGEMENT ####
 app.include_router(reload.router, tags=["user"])
-app.include_router(auth.router, tags=["user"])
+app.include_router(auth.router,prefix="/user", tags=["user"])
 
 # #### SERVER ACTIONS ####
 app.include_router(service.router, prefix="/server", tags=["server"])

@@ -18,7 +18,7 @@ from app.exceptions.exceptions import InvalidPasswordError, UserNotFoundError
 logger = logging.getLogger("homeops.auth")
 
 # OAuth2 scheme
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/token")
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/user/auth")
 
 # JWT Settings
 SECRET_KEY = os.getenv("SECRET_KEY", "my-secret-key")
@@ -76,7 +76,7 @@ class TokenResponse(BaseModel):
     token_type: str
     expires_in: int
 
-@router.post("/token", response_model=TokenResponse, responses={
+@router.post("/auth", response_model=TokenResponse, responses={
     422: {"description": "Invalid Password", "model": ProblemDetails},
     404: {"description": "User Not Found", "model": ProblemDetails},
 })

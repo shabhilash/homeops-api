@@ -43,7 +43,7 @@ Success Response
     curl -X PUT 'http://127.0.0.1:8000/reload/ad-users'
     ```
 
-### POST /token
+### POST /user/auth
   - **Summary**: Login For Access Token
   - **Description**: No description provided
   - **Request Body**: [Body_login_for_access_token_token_post](#body_login_for_access_token_token_post)
@@ -66,7 +66,7 @@ Success Response
       - **Schema Reference**: [ProblemDetails](#problemdetails)
   - **cURL Command**:
     ```bash
-    curl -X POST 'http://127.0.0.1:8000/token' -H 'Content-Type: application/json' -d '"{  "username": "sample_value",  "password": "sample_value"}"'
+    curl -X POST 'http://127.0.0.1:8000/user/auth' -H 'Content-Type: application/json' -d '"{  "username": "sample_value",  "password": "sample_value"}"'
     ```
 
   - **cURL Command**:

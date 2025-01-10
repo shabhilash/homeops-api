@@ -15,7 +15,7 @@ def auth_token(client):
         "password": "Passw0rd"  # Adjust password if necessary
     }
     response = client.post(
-        "/token",
+        "//user/auth",
         data=data,
         headers={"accept": "application/json"}
     )
