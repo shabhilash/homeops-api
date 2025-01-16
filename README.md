@@ -7,15 +7,15 @@ A tool for automating and managing homelab operations.
 
 ### Install
 ```shell
-sudo HOMEOPS_DIR='/opt/homeops-api' bash -c "$(curl -sSL https://github.com/shabhilash/homeops-api/raw/main/helper_scripts/setup.sh)" -v -b 'main'
+sudo HOMEOPS_DIR='/opt/homeops-api' bash -c "$(curl -sSL https://github.com/shabhilash/homeops-api/blob/main/scripts/setup.sh)" -v -b 'main'
 ```
 ### Update
 ```shell
-sudo HOMEOPS_DIR='/opt/homeops-api' bash -c "$(curl -sSL https://github.com/shabhilash/homeops-api/raw/main/helper_scripts/update.sh)" -v
+sudo HOMEOPS_DIR='/opt/homeops-api' bash -c "$(curl -sSL https://github.com/shabhilash/homeops-api/blob/main/scripts/update.sh)" -v
 ```
 ### Uninstall
 ```shell
-sudo HOMEOPS_DIR='/opt/homeops-api' bash -c "$(curl -sSL https://github.com/shabhilash/homeops-api/raw/main/helper_scripts/uninstall.sh)" -v 
+sudo HOMEOPS_DIR='/opt/homeops-api' bash -c "$(curl -sSL https://github.com/shabhilash/homeops-api/blob/main/scripts/uninstall.sh)" -v 
 ```
 ## API Endpoints
 
@@ -46,7 +46,7 @@ Success Response
 ### POST /user/auth
   - **Summary**: Login For Access Token
   - **Description**: No description provided
-  - **Request Body**: [Body_login_for_access_token_token_post](#body_login_for_access_token_token_post)
+  - **Request Body**: [Body_login_for_access_token_user_auth_post](#body_login_for_access_token_user_auth_post)
 
 ```json
 {
@@ -287,9 +287,31 @@ Raises:
     curl -X GET 'http://127.0.0.1:8000/log-list'
     ```
 
+### GET /database/stats
+  - **Summary**: Get User Stats
+  - **Description**: Function to get user stats
+  - **Responses**:
+    - **Status Code**: 200
+      - **Description**: Successful Response
+  - **cURL Command**:
+    ```bash
+    curl -X GET 'http://127.0.0.1:8000/database/stats'
+    ```
+
+### GET /config/logger
+  - **Summary**: Get Config
+  - **Description**: No description provided
+  - **Responses**:
+    - **Status Code**: 200
+      - **Description**: Successful Response
+  - **cURL Command**:
+    ```bash
+    curl -X GET 'http://127.0.0.1:8000/config/logger'
+    ```
+
 ## Schema Section
 
-### body_login_for_access_token_token_post
+### body_login_for_access_token_user_auth_post
   - **Type**: object
   - **Properties**:
     - **username** (string)
