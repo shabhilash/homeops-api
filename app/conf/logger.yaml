@@ -18,21 +18,13 @@ loggers:
   homeops:
     level: INFO
     qualname: homeops
-  homeops.ad:
-    level: INFO
-    qualname: homeops.ad
-  homeops.app:
-    level: INFO
-    qualname: homeops.app
   homeops.db:
     level: INFO
-    qualname: homeops.db
-  homeops.logger:
-    level: INFO
-    qualname: homeops.logger
   passlib:
     level: ERROR
     qualname: passlib
+  pyasn1:
+    level: ERROR
   python_multipart:
     level: ERROR
     qualname: python_multipart

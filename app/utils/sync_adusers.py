@@ -4,9 +4,9 @@ import bcrypt
 from dotenv import load_dotenv
 
 import logging
-from fastapi import HTTPException
 from ldap3 import ALL, SAFE_SYNC, Connection, Server
 
+from app.exceptions.exceptions import CustomHTTPException
 from app.utils.db_init import SessionLocal
 from app.utils.db_schemas import User
 
@@ -71,7 +71,7 @@ async def fetch_ad_users():
 
     except Exception as err:
         logger.error(f"Error while fetching AD users: {err}")
-        return []
+        raise CustomHTTPException(status_code=500, detail=f"Error while fetching AD users: {err}",code="AD_SYNC_ERROR_002")
 
 
 async def check_if_superuser(username: str, group_name: str) -> bool:
@@ -201,7 +201,7 @@ async def sync_ad_users():
 
     except Exception as err:
         logger.exception(f"Error while syncing users: {err}")
-        raise HTTPException(status_code=500, detail=f"Error while syncing users - {err}")
+        raise CustomHTTPException(status_code=500, detail=f"Error while syncing users - {err}",code="AD_SYNC_ERROR_001")
 
     return total_users_fetched, new_user_count, modified_user_count
 

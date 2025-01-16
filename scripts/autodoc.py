@@ -41,6 +41,18 @@ constant_content = """
 
 A tool for automating and managing homelab operations.
 
+### Install
+```shell
+sudo HOMEOPS_DIR='/opt/homeops-api' bash -c "$(curl -sSL https://github.com/shabhilash/homeops-api/blob/main/scripts/setup.sh)" -v -b 'main'
+```
+### Update
+```shell
+sudo HOMEOPS_DIR='/opt/homeops-api' bash -c "$(curl -sSL https://github.com/shabhilash/homeops-api/blob/main/scripts/update.sh)" -v
+```
+### Uninstall
+```shell
+sudo HOMEOPS_DIR='/opt/homeops-api' bash -c "$(curl -sSL https://github.com/shabhilash/homeops-api/blob/main/scripts/uninstall.sh)" -v 
+```
 """
 
 # Function to generate sample request body

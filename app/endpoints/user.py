@@ -7,7 +7,7 @@ from app.utils.db_schemas import User
 from app.utils.schemas import UserBase
 
 # OAuth2PasswordBearer tells FastAPI to expect a token in the Authorization header
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/token")
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/user/auth")
 
 
 @router.get("/users/me", response_model=UserBase)

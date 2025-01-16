@@ -5,16 +5,16 @@ set -e
 
 # Variables
 PROJECT_DIR="${HOMEOPS_DIR}"
-PARENT_DIR=$(dirname "$PROJECT_DIR")  # Get the parent directory of HOMEOPS_DIR
+PARENT_DIR=$(dirname "$PROJECT_DIR")
 VENV_DIR="$PROJECT_DIR/venv"
 SERVICE_FILE="/etc/systemd/system/homeops-api.service"
 USER=$(whoami)
 REQUIRED_PYTHON_VERSION="3.8"
-LOG_FILE="$PARENT_DIR/setup.log"  # Use the parent directory for setup.log
+LOG_FILE="$PARENT_DIR/setup.log"
 ENV_FILE="$PROJECT_DIR/.env"
 SAMPLE_ENV_FILE="$PROJECT_DIR/.env.sample"
 REPO_URL="https://github.com/shabhilash/homeops-api.git"
-BRANCH="main"  # Default branch
+BRANCH="main"
 VERBOSE=0
 
 # Function to check if a command exists
@@ -27,7 +27,7 @@ log() {
     local level="$1"
     local message="$2"
     if [[ "$level" == "DEBUG" && "$VERBOSE" -eq 0 ]]; then
-        return 0  # Do nothing if not verbose
+        return 0
     fi
     echo "$(date '+%Y-%m-%d %H:%M:%S') - $level: $message" | tee -a "$LOG_FILE"
 }
@@ -114,7 +114,6 @@ fi
 if [ ! -d "$PROJECT_DIR/.git" ]; then
     if [ -d "$PROJECT_DIR" ]; then
         log_info "Project directory exists, but is not a Git repository. Cloning into subdirectory..."
-        # Create a subdirectory if the project directory already exists and is not empty
         CLONE_DIR="$PROJECT_DIR/homeops-api"
         git clone "$REPO_URL" "$CLONE_DIR"
     else
@@ -140,11 +139,17 @@ fi
 log_info "Fetching the latest changes from the repository..."
 git fetch origin
 
-# Check if the branch exists
+log_info "Available branches:"
+git branch -a | tee -a "$LOG_FILE"
+
+# Check if the branch exists locally or remotely
 if git show-ref --quiet refs/heads/"$BRANCH"; then
-    log_debug "Branch '$BRANCH' exists. Checking out and pulling updates."
+    log_debug "Branch '$BRANCH' exists locally. Checking out and pulling updates."
     git checkout "$BRANCH"
     git pull origin "$BRANCH"
+elif git show-ref --quiet refs/remotes/origin/"$BRANCH"; then
+    log_debug "Branch '$BRANCH' exists remotely. Checking out and pulling updates."
+    git checkout -b "$BRANCH" origin/"$BRANCH"
 else
     log_error "Branch '$BRANCH' does not exist. Please ensure the branch name is correct."
 fi
@@ -157,24 +162,29 @@ fi
 # Check for existing virtual environment and prompt for deletion
 if [ -d "$VENV_DIR" ]; then
     read -p "Virtual environment already exists. Do you want to delete and recreate it? (y/n): " -r REPLY
-    if [[ $REPLY =~ ^[Yy]$ ]]; then
+    if [[ $REPLY =~ ^[Yy][Ee][Ss]?$ ]]; then
         log_info "Removing existing virtual environment..."
         rm -rf "$VENV_DIR"
+        log_info "Creating virtual environment..."
+        python3 -m venv "$VENV_DIR"
+        log_info "Activating virtual environment and installing dependencies..."
+        source "$VENV_DIR"/bin/activate
+        pip install --upgrade pip
+        pip install -r "$PROJECT_DIR"/requirements.txt
     else
-        log_info "Exiting setup."
-        exit 1
+        log_info "Updating existing virtual environment..."
+        source "$VENV_DIR"/bin/activate
+        pip install --upgrade pip
+        pip install -r "$PROJECT_DIR"/requirements.txt
     fi
+else
+    log_info "Creating virtual environment..."
+    python3 -m venv "$VENV_DIR"
+    log_info "Activating virtual environment and installing dependencies..."
+    source "$VENV_DIR"/bin/activate
+    pip install --upgrade pip
+    pip install -r "$PROJECT_DIR"/requirements.txt
 fi
-
-# Create a virtual environment
-log_info "Creating virtual environment..."
-python3 -m venv "$VENV_DIR"
-
-# Activate the virtual environment and install dependencies
-log_info "Activating virtual environment and installing dependencies..."
-source "$VENV_DIR"/bin/activate
-pip install --upgrade pip
-pip install -r "$PROJECT_DIR"/requirements.txt
 
 # Create .env file if .env.sample exists
 if [ -f "$SAMPLE_ENV_FILE" ]; then

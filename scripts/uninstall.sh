@@ -5,7 +5,6 @@ set -e
 
 # Variables
 PROJECT_DIR="${HOMEOPS_DIR}"
-PARENT_DIR=$(dirname "$PROJECT_DIR")  # Parent directory
 VENV_DIR="$PROJECT_DIR/venv"
 SERVICE_FILE="/etc/systemd/system/homeops-api.service"
 USER=$(whoami)

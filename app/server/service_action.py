@@ -1,64 +1,34 @@
 import logging
 import subprocess
-from fastapi import HTTPException
+import platform
+
+from app.exceptions.service_error import *
 
 # Logger
 logger = logging.getLogger("homeops.service")
 
 
-# Custom HTTP Exceptions
-class ServiceError(HTTPException):
-    pass
-
-
-class ServiceNotFound(ServiceError):
-    def __init__(self):
-        super().__init__(status_code=404, detail="Service not found")
-
-
-class PermissionDenied(ServiceError):
-    def __init__(self):
-        super().__init__(status_code=403, detail="Permission denied")
-
-
-class InvalidArgument(ServiceError):
-    def __init__(self):
-        super().__init__(status_code=400, detail="Invalid argument")
-
-
-class RequestTimeout(ServiceError):
-    def __init__(self):
-        super().__init__(status_code=408, detail="Request timeout")
-
-
-class FailedDependency(ServiceError):
-    def __init__(self):
-        super().__init__(status_code=424, detail="Failed dependency")
-
-
-class ConflictError(ServiceError):
-    def __init__(self, detail="Conflict error"):
-        super().__init__(status_code=409, detail=detail)
-
-
-class MethodNotAllowed(ServiceError):
-    def __init__(self):
-        super().__init__(status_code=405, detail="Method not allowed")
-
-
-class InternalServerError(ServiceError):
-    def __init__(self):
-        super().__init__(status_code=500, detail="Internal server error")
-
-
 def service_action(name: str, action: str) -> bool:
     """
-    Function to perform requested actions on service
+    Function to perform requested actions on a service.
 
-    :param name: Service name
-    :param action: Action to perform
-    :return: True if successful, raises HTTPException otherwise
+    This function attempts to execute a systemctl action on a given service.
+    If the action fails, it raises an appropriate HTTP exception based on the
+    error message from the system.
+
+    Args:
+        name (str): The name of the service to act upon.
+        action (str): The action to perform (e.g., start, stop, restart).
+
+    Returns:
+        bool: True if the action is successful.
+
+    Raises:
+        ServiceError: If the action fails due to various possible issues.
     """
+    if platform.system() != "Linux":
+        raise OSNotSupported()
+
     try:
         result = subprocess.run(
             ["sudo", "systemctl", action, name],
@@ -88,5 +58,7 @@ def service_action(name: str, action: str) -> bool:
             raise ConflictError(detail="Service already running")
         elif "not allowed" in e.stderr:
             raise MethodNotAllowed()
+        elif "Sudo is disabled" in e.stderr:
+            raise SudoDisabled()
         else:
             raise InternalServerError()

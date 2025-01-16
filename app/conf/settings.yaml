@@ -3,4 +3,4 @@ app:
 
 database:
     database: 'homeops'
-    path: "D:/ash/github/homeops-api/app/db"
+    path: "C:/Users/Abhi Reddy/homeops-api/app/database"

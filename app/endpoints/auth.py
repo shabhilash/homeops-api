@@ -1,20 +1,24 @@
 import logging
 import os
 from datetime import timedelta, datetime, timezone
-from fastapi import APIRouter, Depends, HTTPException, status, Form
+from fastapi import APIRouter, Depends, Form
 from fastapi.security import OAuth2PasswordBearer
 from pydantic import BaseModel
 from sqlalchemy.orm import Session
+
+from app.models.problem_details import ProblemDetails
 from app.utils.db_init import SessionLocal
 from app.utils.db_schemas import User
 from passlib.context import CryptContext
-from authlib.jose import jwt, JoseError
+from authlib.jose import jwt
+
+from app.exceptions.exceptions import InvalidPasswordError, UserNotFoundError
 
 # Logger
 logger = logging.getLogger("homeops.auth")
 
 # OAuth2 scheme
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/token")
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/user/auth")
 
 # JWT Settings
 SECRET_KEY = os.getenv("SECRET_KEY", "my-secret-key")
@@ -53,35 +57,38 @@ def create_access_token(data: dict, expires_delta: timedelta = timedelta(minutes
 
 # Function to get the user from the DB by username
 def get_user(db: Session, username: str):
-    return db.query(User).filter(User.username == username).first()
+    return db.query(User).filter(username == User.username).first()
 
 # Function to authenticate the user
 def authenticate_user(db: Session, username: str, password: str):
     user = get_user(db, username)
-    if not user or not verify_password(password, user.password):
-        return None
+    if not user:
+        logger.error(f"Invalid credentials for username: {username}")
+        raise UserNotFoundError(detail="The username is invalid",code="INVALID_USERNAME_002")
+    if not verify_password(password, user.password):
+        logger.error(f"Invalid password for username: {username}")
+        raise InvalidPasswordError(detail="The password is incorrect",code="INVALID_CREDENTIALS_002")
     return user
 
-# Route for generating the token (login)
 # Define the response model for the login endpoint
 class TokenResponse(BaseModel):
     access_token: str
     token_type: str
     expires_in: int
 
-@router.post("/token", response_model=TokenResponse)  # Use TokenResponse here
+@router.post("/auth", response_model=TokenResponse, responses={
+    422: {"description": "Invalid Password", "model": ProblemDetails},
+    404: {"description": "User Not Found", "model": ProblemDetails},
+})
 async def login_for_access_token(username: str = Form(...), password: str = Form(...), db: Session = Depends(get_db)):
     logger.debug(f"Received request for username: {username}")
 
     # Authenticate user
     user = authenticate_user(db, username, password)
 
-    if not user:
-        logger.error(f"Invalid credentials for username: {username}")
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid credentials")
 
     # Define token expiration time (in seconds)
-    expires_in = int(os.getenv("SESSION_TIMEOUT_SECONDS", 360)) # This is set to 360 seconds or 6 minutes as default
+    expires_in = int(os.getenv("SESSION_TIMEOUT_SECONDS", 360))  # 360 seconds or 6 minutes default
 
     # Create the access token with an expiration time
     access_token = create_access_token(data={"sub": user.username}, expires_delta=timedelta(seconds=expires_in))
