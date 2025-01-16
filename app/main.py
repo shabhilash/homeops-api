@@ -1,14 +1,14 @@
 import logging
 from contextlib import asynccontextmanager
-from sys import prefix
+
 
 from fastapi import FastAPI
 from starlette.middleware.cors import CORSMiddleware
-from fastapi.staticfiles import StaticFiles
 from starlette.responses import HTMLResponse
 from starlette.templating import Jinja2Templates
 
 from app.conf import app_config
+from app.endpoints.database import db_users
 from app.endpoints import log, reload, service, auth, disk_usage, cpu_usage, memory_usage
 from app.exceptions.handlers import *
 from app.utils.db_init import engine
@@ -82,6 +82,9 @@ app.include_router(memory_usage.router, prefix="/server", tags=["server"])
 
 # #### LOGGER ACTIONS ####
 app.include_router(log.router, tags=["logger"])
+
+# #### DB STATS ####
+app.include_router(db_users.router,prefix="/database",tags=["database"])
 
 # #### WEB UI ####
 templates = Jinja2Templates(directory="templates")

@@ -1,6 +1,6 @@
 def test_log_level(client, auth_token):
     data = {
-        "logger_name": "homeops.db",
+        "logger_name": "homeops.database",
         "level": "info"
     }
     headers = {
@@ -16,4 +16,4 @@ def test_log_level(client, auth_token):
     print("Response body:", response.json())
 
     assert response.status_code == 200
-    assert response.json() == {'message': "Log level of logger 'homeops.db' set to INFO"}
+    assert response.json() == {'message': "Log level of logger 'homeops.database' set to INFO"}

@@ -8,8 +8,8 @@ from app.conf.log_config import check_sub_dir_exists
 current_folder = os.path.dirname(os.path.abspath(__file__))
 app_folder = os.path.join(current_folder,"..")
 
-check_sub_dir_exists("db")
-db_folder = os.path.join(app_folder, "db")
+check_sub_dir_exists("database")
+db_folder = os.path.join(app_folder, "database")
 
 # Load config from settings.yaml
 configFile  = os.path.join(os.path.dirname(__file__), 'settings.yaml')
