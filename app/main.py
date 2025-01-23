@@ -8,13 +8,14 @@ from starlette.responses import HTMLResponse
 from starlette.templating import Jinja2Templates
 
 from app.conf import app_config
-from app.endpoints.database import db_users
-from app.endpoints import log, reload, service, auth, disk_usage, cpu_usage, memory_usage
+from app.endpoints.users import db_users, reload
+from app.endpoints import log, auth
+from app.endpoints.server import cpu_usage, disk_usage, memory_usage, service
 from app.exceptions.handlers import *
 from app.utils.db_init import engine
 
 # FastAPI app initialization
-app = FastAPI(title=app_config.config["app"]["name"], version="0.2",
+app = FastAPI(title=app_config.config["app"]["name"], version="0.3",
               description=f'{app_config.config["app"]["name"]} is a hobby project to automate my homelab maintenance')
 
 # Logger
@@ -48,7 +49,7 @@ def read_root():
     return {"status": True}
 
 
-# #### EXCEPTION HANLDERS ####
+# #### EXCEPTION HANDLERS ####
 @app.exception_handler(UserNotFoundError)
 async def user_not_found_error_handler(request: Request, exc: UserNotFoundError):
     return await invalid_username_exception_handler(request, exc)
@@ -73,6 +74,7 @@ async def general_error_handler(request: Request, exc: HTTPException):
 # #### USER MANAGEMENT ####
 app.include_router(reload.router, tags=["user"])
 app.include_router(auth.router,prefix="/user", tags=["user"])
+app.include_router(db_users.router,prefix="/users",tags=["user"])
 
 # #### SERVER ACTIONS ####
 app.include_router(service.router, prefix="/server", tags=["server"])
@@ -83,8 +85,6 @@ app.include_router(memory_usage.router, prefix="/server", tags=["server"])
 # #### LOGGER ACTIONS ####
 app.include_router(log.router, tags=["logger"])
 
-# #### DB STATS ####
-app.include_router(db_users.router,prefix="/database",tags=["database"])
 
 # #### WEB UI ####
 templates = Jinja2Templates(directory="templates")

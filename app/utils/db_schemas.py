@@ -1,4 +1,6 @@
-from sqlalchemy import Column, String, Boolean
+from datetime import datetime
+
+from sqlalchemy import Column, String, Boolean, DateTime
 from sqlalchemy.ext.declarative import declarative_base
 from app.utils.db_init import engine
 
@@ -15,6 +17,8 @@ class User(Base):  # SQLAlchemy model
     password = Column(String, nullable=True)
     enabled = Column(Boolean, default=False)
     is_superuser = Column(Boolean, default=False)
+    created_date = Column(DateTime, default=datetime.now)
+    updated_date = Column(DateTime,default=datetime.now,onupdate=datetime.now)
 
 
 
