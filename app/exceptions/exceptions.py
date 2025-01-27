@@ -24,3 +24,4 @@ class InvalidTokenError(HTTPException):
     def __init__(self, detail: str = "Invalid token", code: str = "INVALID_TOKEN_001"):
         super().__init__(status_code=status.HTTP_401_UNAUTHORIZED, detail=detail)
         self.code = code
+

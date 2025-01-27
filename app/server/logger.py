@@ -53,7 +53,7 @@ async def change_logger(logger_name, level):
     except FileNotFoundError:
         raise ConfigFileNotFound()
     except Exception as e:
-        logger.error(f"Error updating logger config: {e}")
+        logger.exception(f"Error updating logger config: {e}")
         raise LoggerUpdateError()
 
     return f"Log level of logger '{logger_name}' set to {level}"

@@ -4,7 +4,7 @@ from http import HTTPStatus
 from fastapi import APIRouter
 from starlette.responses import JSONResponse
 
-from app.models.user_stats import DbStats
+from app.models.user import DbStats
 from app.server.users.user_stats import get_db_users_count
 
 # Logger

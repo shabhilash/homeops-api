@@ -1,6 +1,7 @@
 import logging
 
 from sqlalchemy import create_engine, text, insert
+from sqlalchemy.exc import OperationalError
 from sqlalchemy.orm import sessionmaker
 from app.conf.app_config import db_folder
 from app.exceptions.exceptions import CustomHTTPException
@@ -37,7 +38,7 @@ def test_db_connection():
     try:
         with engine.connect() as connection:
             result = connection.execute(text('SELECT 1'))
-            logger.info("Database connection successful. Status: %s", result)
+            logger.debug("Database connection successful. Status: %s", result)
             create_admin_user()
     except Exception as e:
         logger.error("Error testing database connection: %s", e)
@@ -66,13 +67,27 @@ def create_admin_user():
         with engine.connect() as conn:
             conn.execute(admin_user)
             conn.commit()
-            logger.info("Admin user created or already exists.")
+            logger.debug("Admin user created or already exists.")
+    except OperationalError as e:
+        logger.error("Database operation failed: %s", e)
+        if "database is locked" in str(e):
+            raise CustomHTTPException(
+                    status_code=503,
+                    detail="Database is currently locked, please try again later.",
+                    code="DATABASE_LOCKED_001"
+            )
+        else:
+            raise CustomHTTPException(
+                    status_code=500,
+                    detail="Database operation failed.",
+                    code="DATABASE_OPERATIONAL_ERROR_001"
+            )
     except Exception as e:
         logger.error("Error creating admin user: %s", e)
         raise CustomHTTPException(
-            status_code=500,
-            detail="Failed to create admin user",
-            code="USER_CREATION_FAILED_002"
+                status_code=500,
+                detail="Failed to create admin user",
+                code="USER_CREATION_FAILED_002"
         )
 
 test_db_connection()

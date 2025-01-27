@@ -8,14 +8,14 @@ from starlette.responses import HTMLResponse
 from starlette.templating import Jinja2Templates
 
 from app.conf import app_config
-from app.endpoints.users import db_users, reload
+from app.endpoints.users import db_users, reload, create
 from app.endpoints import log, auth
 from app.endpoints.server import cpu_usage, disk_usage, memory_usage, service
 from app.exceptions.handlers import *
 from app.utils.db_init import engine
 
 # FastAPI app initialization
-app = FastAPI(title=app_config.config["app"]["name"], version="0.3",
+app = FastAPI(title=app_config.config["app"]["name"], version="Beta 0.4",
               description=f'{app_config.config["app"]["name"]} is a hobby project to automate my homelab maintenance')
 
 # Logger
@@ -39,7 +39,7 @@ async def lifespan():
     engine.dispose()
 
 
-@app.get("/", tags=["default"], name="root", summary="Root endpoint to check if the service is running")
+@app.get("/", tags=["default"], name="root", summary="Root Endpoint")
 def read_root():
     """
     To test if the API is working \n
@@ -74,7 +74,8 @@ async def general_error_handler(request: Request, exc: HTTPException):
 # #### USER MANAGEMENT ####
 app.include_router(reload.router, tags=["user"])
 app.include_router(auth.router,prefix="/user", tags=["user"])
-app.include_router(db_users.router,prefix="/users",tags=["user"])
+app.include_router(db_users.router,prefix="/user",tags=["user"])
+app.include_router(create.router,prefix="/user",tags=["user"])
 
 # #### SERVER ACTIONS ####
 app.include_router(service.router, prefix="/server", tags=["server"])
@@ -96,5 +97,4 @@ async def get_config(request: Request):
 
 if __name__ == "__main__":
     import uvicorn
-
-    uvicorn.run("main:app", host="0.0.0.0", port=8000, reload=True)
+    uvicorn.run("main:app", host="0.0.0.0", port=8000,reload_dirs="app",reload=True,reload_delay=False)

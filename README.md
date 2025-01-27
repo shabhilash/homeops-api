@@ -69,6 +69,48 @@ Success Response
     curl -X POST 'http://127.0.0.1:8000/user/auth' -H 'Content-Type: application/json' -d '"{  "username": "sample_value",  "password": "sample_value"}"'
     ```
 
+### GET /user/stats
+  - **Summary**: Get User Stats
+  - **Description**: Function to get user stats
+  - **Responses**:
+    - **Status Code**: 200
+      - **Description**: Successful Response
+  - **cURL Command**:
+    ```bash
+    curl -X GET 'http://127.0.0.1:8000/user/stats'
+    ```
+
+### POST /user/create
+  - **Summary**: Post Create User
+  - **Description**: Function to create user
+  - **Parameters**:
+    - **password** (in header)
+      - Description: No description
+      - Required: True
+  - **Request Body**: [UserCreateRequest](#usercreaterequest)
+
+```json
+{
+  "username": "sample_value",
+  "first_name": "sample_value",
+  "last_name": "sample_value",
+  "email_address": "sample_value",
+  "enabled": true,
+  "is_superuser": true,
+  "password": "sample_value"
+}
+```
+  - **Responses**:
+    - **Status Code**: 200
+      - **Description**: Successful Response
+    - **Status Code**: 422
+      - **Description**: Validation Error
+      - **Schema Reference**: [HTTPValidationError](#httpvalidationerror)
+  - **cURL Command**:
+    ```bash
+    curl -X POST 'http://127.0.0.1:8000/user/create' -H 'Content-Type: application/json' -d '"{  "username": "sample_value",  "first_name": "sample_value",  "last_name": "sample_value",  "email_address": "sample_value",  "enabled": true,  "is_superuser": true,  "password": "sample_value"}"'
+    ```
+
   - **cURL Command**:
     ```bash
     curl -X POST 'http://127.0.0.1:8000/server/service'
@@ -287,17 +329,6 @@ Raises:
     curl -X GET 'http://127.0.0.1:8000/log-list'
     ```
 
-### GET /database/stats
-  - **Summary**: Get User Stats
-  - **Description**: Function to get user stats
-  - **Responses**:
-    - **Status Code**: 200
-      - **Description**: Successful Response
-  - **cURL Command**:
-    ```bash
-    curl -X GET 'http://127.0.0.1:8000/database/stats'
-    ```
-
 ### GET /config/logger
   - **Summary**: Get Config
   - **Description**: No description provided
@@ -358,6 +389,25 @@ Raises:
       - Description: Token Type
     - **expires_in** (integer)
       - Description: Expires In
+
+### usercreaterequest
+  - **Type**: object
+  - **Properties**:
+    - **username** (string)
+      - Description: Username
+    - **first_name** (string)
+      - Description: First Name
+    - **last_name** (string)
+      - Description: Last Name
+    - **email_address** (string)
+      - Description: Email Address
+    - **enabled** (boolean)
+      - Description: Enabled
+    - **is_superuser** (boolean)
+      - Description: Is Superuser
+      - Default: False
+    - **password** (string)
+      - Description: Password
 
 ### validationerror
   - **Type**: object
