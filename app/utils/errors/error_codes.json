@@ -1,0 +1,57 @@
+{
+  "INVALID_API_KEY": {
+    "description": "API key provided is not valid.",
+    "fix": "Please check that you have entered the correct API key. If the issue persists, generate a new API key.",
+    "category": "authentication"
+  },
+  "ACCESS_DENIED": {
+    "description": "Not enough permissions to access this endpoint.",
+    "fix": "Ensure that your account has the required permissions to access this endpoint.",
+    "category": "authentication"
+  },
+  "REQUEST_LIMIT_EXCEEDED": {
+    "description": "Exceeded maximum number of allowed requests.",
+    "fix": "Wait for the reset period to pass, or consider updating a higher request limit in your configuration.",
+    "category": "server"
+  },
+  "DATABASE_CONNECTION_ERROR": {
+    "description": "Failed to establish a connection to the database.",
+    "fix": "Verify your database credentials and network settings. If the issue persists, check if the database server is running.",
+    "category": "database"
+  },
+  "PASSWD_FILE_NOT_FOUND": {
+    "description": "passwd file missing.",
+    "fix": "The /etc/passwd file was not found in the specified path. Check if the file is present and the service has the required permissions.",
+    "category": "server"
+  },
+  "PASSWD_FILE_PERMISSION_DENIED": {
+    "description": "Permission denied to access /etc/passwd.",
+    "fix": "Ensure the service has the appropriate permissions to read the /etc/passwd file.",
+    "category": "server"
+  },
+  "NO_USERS_FOUND": {
+    "description": "No users found matching the specified criteria.",
+    "fix": "Ensure there are users that match the provided status or criteria.",
+    "category": "database"
+  },
+  "UNEXPECTED_ERROR": {
+    "description": "This error is not listed or not known.",
+    "fix": "Report this error to the dev team with relevant details, including what actions led to the error, so we can investigate.",
+    "category": "general"
+  },
+  "CHAGE_COMMAND_FAILED": {
+    "description": "Failed to retrieve user password details using the chage command.",
+    "fix": "Ensure the chage command is installed and accessible with sufficient permissions.",
+    "category": "authentication"
+  },
+  "CHAGE_COMMAND_NOT_FOUND": {
+    "description": "The chage command was not found on the system.",
+    "fix": "Install the chage utility or verify your PATH environment variable.",
+    "category": "server"
+  },
+  "CHAGE_PERMISSION_DENIED": {
+    "description": "Permission denied while attempting to run the chage command.",
+    "fix": "Run the command with elevated privileges or adjust user permissions.",
+    "category": "authentication"
+  }
+}

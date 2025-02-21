@@ -1,0 +1,7 @@
+SQLAlchemy
+fastapi
+pydantic
+uvicorn
+starlette
+email-validator
+jinja2
