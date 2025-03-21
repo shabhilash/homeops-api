@@ -1,6 +1,0 @@
-app:
-    name: 'homeopsAPI'
-
-database:
-    database: 'homeops'
-    path: "C:/Users/Abhi Reddy/homeops-api/app/database"

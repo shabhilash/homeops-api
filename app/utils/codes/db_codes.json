@@ -1,0 +1,22 @@
+{
+  "DB01_SET": {
+    "description": "The database setup has been successfully completed."
+  },
+  "DB02_SKIP": {
+    "description": "The database setup process was skipped because the database has already been set up."
+  },
+  "DB03_QRYOK": {
+    "description": "The database query was executed successfully, there were no errors or issues with the query processing."
+  },
+  "DB04_OK": {
+    "description": "The connection to the database was established successfully."
+  },
+  "DB05_QRYFAIL": {
+    "description": "The query execution failed. There was an error in processing the query, which could be due to incorrect syntax, missing parameters, or issues with the database schema."
+  },
+  "DB06_CONNFAIL": {
+    "description": "The system was unable to establish a connection to the database.",
+    "fix": "Ensure that the database credentials are correct, verify that the network connection is stable, and check if the database server is up and running. If the problem persists, check the firewall settings and ensure that the database port is open."
+  }
+}
+

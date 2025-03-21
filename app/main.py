@@ -1,100 +1,115 @@
-import logging
+from app.database import engine
 from contextlib import asynccontextmanager
-
-
-from fastapi import FastAPI
-from starlette.middleware.cors import CORSMiddleware
+from fastapi import FastAPI, HTTPException, status
+from starlette.requests import Request
 from starlette.responses import HTMLResponse
 from starlette.templating import Jinja2Templates
 
-from app.conf import app_config
-from app.endpoints.database import db_users
-from app.endpoints import log, reload, service, auth, disk_usage, cpu_usage, memory_usage
-from app.exceptions.handlers import *
-from app.utils.db_init import engine
+from app.endpoints.config import config_router
+from app.endpoints.users import users_router
+from app.exceptions.handlers import general_exception_handler
+from app.models.root_response import ResponseRootModel
+from app.utils.db.config import get_config_value
+from app.utils.codes.load_codes import codes
 
-# FastAPI app initialization
-app = FastAPI(title=app_config.config["app"]["name"], version="0.2",
-              description=f'{app_config.config["app"]["name"]} is a hobby project to automate my homelab maintenance')
+ref_code_count = len(codes)
 
-# Logger
-logger = logging.getLogger("homeops.app")
+API_DESCRIPTION = f"""
 
-# noinspection PyTypeChecker
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["*"],  # Allows all origins
-    allow_credentials=True,
-    allow_methods=["*"],  # Allows all methods
-    allow_headers=["*"],  # Allows all headers
-)
+## 🎯 Features
+- ⚙️ **Configuration Management**: Modify system, network, and automation settings.
+- 📊 **System Monitoring**: View system logs, diagnostics, and health reports.
+- ⚡ **Automation**: Create and schedule automated tasks.
+- 🔐 **Security & Access Control**: Manage users, authentication, and permissions.
+- 🌐 **Network Management**: Configure and monitor network settings.
+- 💾 **Storage & Logs**: Manage disk usage and retrieve system logs.
+
+## 📘 Documentation
+Refer to the [API schema](/openapi.json) for endpoint details.  
+For details on all reference codes logged, visit the [Ref Codes ({ref_code_count})](/codes) page."""
+
+OPENAPI_TAGS = [
+    {"name": "system", "description": "Check system status, uptime, and API health."},
+    {"name": "config", "description": "Manage system and network configurations."},
+    {"name": "monitoring", "description": "Monitor system performance, logs, and diagnostics."},
+    {"name": "automation", "description": "Schedule and manage automated tasks."},
+    {"name": "security", "description": "Manage authentication, authorization, and security policies."},
+    {"name": "services", "description": "Manage systemctl services."},
+    {"name": "network", "description": "View and configure network settings and status."},
+    {"name": "storage", "description": "Manage storage, disk usage, and related resources."},
+    {"name": "users", "description": "Handle user authentication and access control."},
+    {"name": "logs", "description": "Retrieve and analyze system logs."},
+]
+
 
 @asynccontextmanager
-async def lifespan():
-    logger.critical("Starting Application")
-    yield
-    logger.critical("Shutting down Application")
-    # Close database connection
+async def lifespan(_: FastAPI):
+    """
+    Context manager for application lifespan.
+    Ensures proper cleanup of resources such as database connections.
+    """
+    yield  # Yield control to the application startup
     engine.dispose()
 
+app = FastAPI(
+    title="HomeOps API",
+    summary="HomeOpsAPI provides a powerful and efficient interface for managing homelab environments.",
+    version="0.1.6-beta",
+    description=API_DESCRIPTION,
+    contact={"name": "HomeOps Team", "email": "homeops-api@googlegroups.com"},
+    license_info={"name": "Apache 2.0", "identifier": "Apache-2.0"},
+    openapi_tags=OPENAPI_TAGS,
+    lifespan=lifespan
+)
 
-@app.get("/", tags=["default"], name="root", summary="Root endpoint to check if the service is running")
-def read_root():
-    """
-    To test if the API is working \n
-    Success Response \n
-    """
-    logger.debug("Root endpoint accessed")
-    return {"status": True}
-
-
-# #### EXCEPTION HANLDERS ####
-@app.exception_handler(UserNotFoundError)
-async def user_not_found_error_handler(request: Request, exc: UserNotFoundError):
-    return await invalid_username_exception_handler(request, exc)
-
-@app.exception_handler(InvalidPasswordError)
-async def invalid_password_error_handler(request: Request, exc: InvalidPasswordError):
-    return await invalid_password_exception_handler(request, exc)
-
-@app.exception_handler(InvalidTokenError)
-async def invalid_token_error_handler(request: Request, exc: InvalidTokenError):
-    return await invalid_token_exception_handler(request, exc)
-
-@app.exception_handler(PermissionDeniedError)
-async def permission_denied_error_handler(request: Request, exc: PermissionDeniedError):
-    return await permission_denied_exception_handler(request, exc)
 
 @app.exception_handler(HTTPException)
 async def general_error_handler(request: Request, exc: HTTPException):
+    """
+    Handles HTTP exceptions raised in the application.
+    """
     return await general_exception_handler(request, exc)
 
-
-# #### USER MANAGEMENT ####
-app.include_router(reload.router, tags=["user"])
-app.include_router(auth.router,prefix="/user", tags=["user"])
-
-# #### SERVER ACTIONS ####
-app.include_router(service.router, prefix="/server", tags=["server"])
-app.include_router(disk_usage.router, prefix="/server", tags=["server"])
-app.include_router(cpu_usage.router, prefix="/server", tags=["server"])
-app.include_router(memory_usage.router, prefix="/server", tags=["server"])
-
-# #### LOGGER ACTIONS ####
-app.include_router(log.router, tags=["logger"])
-
-# #### DB STATS ####
-app.include_router(db_users.router,prefix="/database",tags=["database"])
-
-# #### WEB UI ####
-templates = Jinja2Templates(directory="templates")
-
-@app.get("/config/logger", response_class=HTMLResponse,tags=["web"])
-async def get_config(request: Request):
-    return templates.TemplateResponse("logger.html", {"request": request})
+@app.get(
+    "/",
+    response_description="API Status OK",
+    status_code=status.HTTP_200_OK,
+    response_model=ResponseRootModel,
+    tags=["system"],
+    summary="Get API Status",
+    description="Returns the current API status, version, and metadata."
+)
+def get_root():
+    return ResponseRootModel(
+        status="ok",
+        version=app.version,
+        metadata={
+            "environment": get_config_value("ENVIRONMENT"),
+            "rate_limit": f"{get_config_value('REQUEST_LIMIT')} Req / {get_config_value('TIME_WINDOW')} Sec"
+        }
+    )
 
 
-if __name__ == "__main__":
-    import uvicorn
+app.include_router(config_router, tags=["config"])
+app.include_router(users_router, tags=["users"])
 
-    uvicorn.run("main:app", host="0.0.0.0", port=8000, reload=True)
+# WEB UI
+templates = Jinja2Templates(directory="pages")
+
+
+@app.get(
+        "/codes",
+        response_class=HTMLResponse,
+        tags=["web"],
+        include_in_schema=False,
+        summary="Codes Page",
+        description="Displays an HTML page with codes."
+)
+async def codes_page(request: Request):
+    if not codes:
+        return HTMLResponse(content="<h2>No codes available.</h2>", status_code=404)
+
+    return templates.TemplateResponse(
+            "codes.html", {"request": request, "codes": codes}
+    )
+
