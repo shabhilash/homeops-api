@@ -39,7 +39,7 @@ class RateLimiter:
                             status_code=status.HTTP_429_TOO_MANY_REQUESTS,
                             title="Too Many Requests",
                             detail=f"Rate limit exceeded. You've made {self.requests_limit} requests within {self.time_window} seconds. Please try again later.",
-                            code="REQUEST_LIMIT_EXCEEDED"
+                            code="API01_LIMIT"
                     )
                 else:
                     request_counters[key]["count"] += 1

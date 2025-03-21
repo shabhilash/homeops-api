@@ -1,0 +1,6 @@
+{
+  "API01_LIMIT": {
+    "description": "Too many requests. Rate limit exceeded.",
+    "fix": "Wait for the reset period to pass, or consider updating a higher request limit in your configuration."
+  }
+}

@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 
-from app.database.initial_db_setup import load_default_configs
+from app.database.db_setup import load_default_configs
 from app.core.auth import require_role
 from app.utils.db.config import get_config_value
 from app.utils.db.init import get_db

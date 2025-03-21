@@ -13,10 +13,8 @@ async def general_exception_handler(request: Request, exc: HTTPException) -> JSO
         title = "Unknown Error Occurred"
         code = "UNEXPECTED_ERROR"
 
-    port = request.headers.get('Host').split(':')[-1] if ':' in request.headers.get('Host', '') else '8000'
-
     problem_details = ProblemDetails(
-            type=f"http://localhost:{port}/errors",
+            type="/codes",
             title=title,
             status=exc.status_code,
             detail=str(exc.detail),

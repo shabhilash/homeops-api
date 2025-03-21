@@ -1,5 +1,6 @@
+import sqlalchemy.exc
 from sqlalchemy.orm import sessionmaker
-from sqlalchemy.exc import NoResultFound
+from sqlalchemy.exc import NoResultFound, SQLAlchemyError
 
 from app.core.logger import logger
 from app.database import Config, engine, test_db_connection
@@ -27,20 +28,28 @@ def database_initial_setup():
             # Update 'FIRST_RUN' flag to True to prevent further runs
             setup_flag.value = True
             session.commit()
-            logger.info("Database setup complete. 'FIRST_RUN' flag set to True.")
+            logger.info("DB01_SET")
+            logger.debug("FIRST_RUN flag set to True.")
         else:
-            logger.debug("Database setup already completed. Skipping setup.")
+            logger.info("DB02_SKIP")
+            logger.debug("DB04_OK. Skipping DB setup.")
 
     except NoResultFound:
         # If the 'FIRST_RUN' row does not exist, create it and run the setup
-        logger.info("No 'FIRST_RUN' flag found, creating new row and running setup...")
+        logger.debug("FIRST_RUN flag not found, running setup.")
         test_db_connection()  # Run the setup
 
         # Create the 'FIRST_RUN' row with False value (since it's the first time setup)
         new_setup_flag = Config(key="FIRST_RUN", value=True)
         session.add(new_setup_flag)
-        session.commit()
-        logger.info("Database setup complete. 'FIRST_RUN' flag created and set to True.")
+
+        try:
+            session.commit()
+            logger.info("DB03_QRYOK. config.FIRST_RUN=True.")
+            logger.debug("DB01_OK FIRST_RUN set to True.")
+        except SQLAlchemyError as e:  # Catch only SQLAlchemy-related codes
+            session.rollback()  # Rollback in case of failure
+            logger.error(f"DB05_QRYFAL: Commit failed due to {e}", exc_info=True)
 
         # Insert default configurations
         load_default_configs(session)
@@ -74,13 +83,15 @@ def load_default_configs(session):
         if new_configs:
             session.add_all(new_configs)
             session.commit()
-            logger.info(f"Inserted {len(new_configs)} new default configs.")
+            logger.info(f"DB03_QRYOK. (Updated Row Count:{len(new_configs)})")
         else:
-            logger.info("All default configs already exist, skipping insertion.")
-
+            logger.info("DB02_SKIP")
+    except sqlalchemy.exc.ProgrammingError as e:
+        session.rollback()
+        logger.error(f"Programming error : {e}")
     except Exception as e:
         session.rollback()
-        logger.info(f"Error inserting default configs: {e}")
+        logger.exception(f"Error inserting default configs: {e}")
 
 
 database_initial_setup()

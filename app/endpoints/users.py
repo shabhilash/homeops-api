@@ -44,7 +44,7 @@ async def get_users(scope: UserScope = UserScope.all):
         logger.error(f"GlobalHTTPException: {e.detail}")
         raise e
     except Exception as e:
-        # Log any unexpected errors
+        # Log any unexpected codes
         logger.exception("Unexpected error while fetching users.")
         raise GlobalHTTPException(
                 status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,

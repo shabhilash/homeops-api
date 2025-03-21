@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="HomeOps API Documentation and Code Reference">
+    <title>HomeOps API Code Reference</title>
+</head>
+<body style="font-family: Arial, sans-serif; margin: 0; padding: 0; background: #f9f9f9;">
+<a id="top"></a>
+
+<!-- Header -->
+<header style="padding: 20px; text-align: center;">
+    <h1 style="margin: 0;">HomeOps API Codes</h1>
+    <p style="margin: 5px 0 0;">Search and find solutions for system codes and their fixes.</p>
+</header>
+
+<!-- Main Content -->
+<main style="padding: 20px;">
+    <!-- Search Section -->
+    <section
+            style="padding: 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);">
+        <form role="search">
+            <input type="text"
+                   id="searchInput"
+                   placeholder="Search for a Code"
+                   aria-controls="codeList"
+                   autocomplete="off"
+                   autofocus
+                   style="width: 100%; padding: 10px; font-size: 16px; border-radius: 4px; border: none;">
+        </form>
+    </section>
+
+    <!-- Results Section -->
+    <section style="margin-top: 20px;">
+        <div id="noResultsMessage" hidden
+             style="padding: 10px; border-radius: 4px;">
+            <p style="margin: 0;">No results found. Please try a different search term.</p>
+        </div>
+
+        <!-- 2-Column Layout using Divs -->
+        <div id="codeList" style="display: flex; flex-wrap: wrap; gap: 20px;">
+            <div style="flex: 1; min-width: 300px;">
+                {% if codes %}
+                {% for code, details in codes.items()|sort %}
+                {% if loop.index %}
+                <article style="padding: 20px; border-radius: 8px; border: 1px solid #e0e0e0; margin-bottom: 20px;">
+                    <p style="margin: 0 0 12px 0;">
+                        <strong>{{ code }}</strong> - {{ details.description }}
+                    </p>
+                    {% if details.fix %}
+                    <div style="padding: 12px; border-radius: 6px; border-left: 4px solid #00754b;">
+                        <p style="margin: 0;">
+                            {{ details.fix }}
+                        </p>
+                    </div>
+                    {% endif %}
+                </article>
+                {% endif %}
+                {% endfor %}
+                {% else %}
+                <p>No codes available in the database.</p>
+                {% endif %}
+            </div>
+        </div>
+    </section>
+</main>
+
+<!-- Footer -->
+<footer style="padding: 20px; text-align: center;">
+    <p style="margin: 0;">&copy; HomeOps API. All rights reserved.</p>
+    <p style="margin: 5px 0 0;"><a href="mailto:homeops-api@googlegroups.com"
+                                                    style="text-decoration: underline; color: inherit;">Contact support</a>
+    </p>
+</footer>
+
+<!-- Back to Top Button -->
+<button id="backToTop" aria-label="Return to top of page"
+        style="position: fixed; bottom: 20px; right: 20px; padding: 10px 20px; border: none; border-radius: 4px; cursor: pointer;">
+    Back to Top
+</button>
+
+<!-- JavaScript Enhancements -->
+<script>
+    // Search Functionality
+    function searchCodes() {
+        const searchTerm = document.getElementById('searchInput').value.trim().toLowerCase();
+        const codeEntries = document.querySelectorAll('#codeList article');
+        let matchesFound = false;
+
+        codeEntries.forEach(entry => {
+            const textContent = entry.textContent.toLowerCase();
+            const isVisible = textContent.includes(searchTerm);
+
+            entry.hidden = !isVisible;
+            if (isVisible) matchesFound = true;
+        });
+
+        document.getElementById('noResultsMessage').hidden = matchesFound;
+    }
+
+    // Smooth Scroll to Top
+    document.getElementById('backToTop').addEventListener('click', () => {
+        window.scrollTo({
+            top: 0,
+            behavior: 'smooth'
+        });
+    });
+
+    // Instant Search
+    document.getElementById('searchInput').addEventListener('input', searchCodes);
+
+    // Initial search on page load
+    searchCodes();
+</script>
+</body>
+</html>

@@ -44,7 +44,7 @@ def set_config_value(key: str, value: str, db: Session = None) -> None:
         db (Session): Optional database session (will create temporary if not provided)
 
     Raises:
-        ValueError: On database errors
+        ValueError: On database codes
     """
     own_session = False
     if db is None:
